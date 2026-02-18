@@ -10,10 +10,7 @@ Students should be able to log into the web app with their credentials, view an 
 
 Professors should be able to log into the web app with their credentials, view an interactive map of the class room and see students that are in attendance. An additional feature  
 
-There are three potential views of the web app:
-1. Professors
-2. Student
-3. Admin
+There are three potential views of the web app which include Professors, Students, and Admins
 
 Students will be able to log into the website with their credentials (StudentID, Password) via the auth/login page.
 Then, they'll be presented with an interactive map of the classroom, with clickable seats that display if the seat is taken or not (green and red).
