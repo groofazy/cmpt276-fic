@@ -32,42 +32,28 @@ Then, they’ll be presented with a map of student seats and other admin feature
 
 ## What are the epics? For example, as a regular user of your site, what general actions/features can I perform? You may choose to start creating some UI mockups on paper. This may help determine your initial features.
 
-As a regular user of our web app, the actions/features depend on the role (Student, Professor, Admin). These are the main epics of our project:
+The project is structured around five major epics, ensuring that the scope is appropriate for five group members.
 
-### 1. Student Attendance Epic-
-- Log into the website using StudentID and Password
-- View an interactive classroom map
-- See which seats are available (green = empty, red = taken)
-- Click a seat to mark attendance
+The first epic is the **Student Attendance Check-In Module**. This feature allows students to securely log in using their credentials and access an interactive classroom seat map. Students can select their seat to mark themselves present. The system visually indicates seat availability and records attendance in real time within the database.
 
-This makes attendance faster and more efficient.
+The second epic is the **Professor Monitoring and Classroom Management Module**. Professors can log in securely and view the live classroom seat map showing attendance status. This module allows instructors to monitor which students are present and manage classroom layouts when necessary. It also provides real-time attendance summaries without requiring manual roll calls.
 
-### 2. Professor Monitoring Epic-
-- Log into the website using ProfID and Password
-- View the classroom seat map
-- See which students are present in real time
-- See which seats are taken or empty
-- Track attendance automatically without calling names
+The third epic is the **Administrative Account and Classroom Management Module**. Administrators can create, update, or remove student and professor accounts. They can also add or remove classrooms, manage seating configurations, and maintain overall system integrity. This module ensures centralized system control.
 
-This reduces time spent on manual attendance and improves accuracy.
+The fourth epic is the **Attendance Reporting and Analytics Module**. This component generates structured attendance reports based on stored records. It allows administrators and professors to view historical attendance data, identify trends, and export attendance summaries. This introduces a computational aspect to the system beyond simple CRUD functionality.
 
-### 3. Admin Management Epic-
-- Manage student and professor accounts
-- Add or remove classrooms
-- View attendance reports
-- Access historical attendance records
-- Maintain overall system control
+The fifth epic is the **Authentication and Role-Based Access Control System**. This module ensures secure login functionality and proper authorization based on user roles. It includes session management, credential validation, password handling, and access restrictions to prevent unauthorized actions across different user types.
+Each epic represents a substantial development component involving database design, controller logic, frontend rendering, validation rules, and integration testing.
 
-This ensures the system remains organized and secure.
 
 ## Is the amount of work required in this proposal sufficient for five group members? A rough rule of thumb is that each group member should have one major feature.
 
 Yes, the workload is sufficient for five group members because each epic is a major feature that includes frontend, backend, database integration, and testing. The work can be divided as:
-- Member 1 (ArshSaran):  Student Attendance Check-In Module
-- Member 2:
-- Member 3:
-- Member 4
-- Member 5: 
+Member 1 (ArshSaran):  Student Attendance Check-In Module
+Member 2: Professor Monitoring and Classroom Management Module
+Member 3: Administrative Account and Classroom Management Module
+Member 4  Attendance Reporting and Analytics Module
+Member 5: Authentication and Role-Based Access Control System
 
 # Deployment
 
