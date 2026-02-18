@@ -4,6 +4,23 @@
 
 ## Do we have a clear understanding of the problem?
 
+Fraser International College wants an attendance tracker for their classrooms. 
+
+Students should be able to log into the web app with their credentials, view an interactive map of the classroom with clickable seats indicating if empty or taken, then be assessed as present in the class.
+
+Professors should be able to log into the web app with their credentials, view an interactive map of the class room and see students that are in attendance. An additional feature  
+
+There are three potential views of the web app:
+1. Professors
+2. Student
+3. Admin
+
+Students will be able to log into the website with their credentials (StudentID, Password) via the auth/login page.
+Then, they'll be presented with an interactive map of the classroom, with clickable seats that display if the seat is taken or not (green and red).
+
+Professors will be able to log into the website with their credentials (ProfID, Password) via the auth/login page.
+Then, they'll be presented with a map of student seats and can adjust the desk setups when needed.
+
 ## How is this problem solved currently (if at all)?
 
 ## How will this project make life better? Is it educational or just for entertainment?
