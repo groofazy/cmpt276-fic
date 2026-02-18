@@ -20,12 +20,19 @@ Admins will be able to log into the website with their credentials (AdminID, Pas
 Then, they’ll be presented with a map of student seats and other admin features such as removing students.
 
 ## How is this problem solved currently (if at all)?
+At Fraser International College, classroom attendance is currently recorded manually by professors through methods such as calling out student names, paper sign-in sheets, or marking attendance in spreadsheets both before and after class. While these approaches are common, they are time-consuming, prone to human error, and inefficient for large classrooms. Manual tracking also makes it difficult to monitor real-time seat usage or visualize classroom occupancy. These limitations highlight the need for a centralized digital system that can automate attendance tracking and provide a visual representation of classroom seating.
 
 ## How will this project make life better? Is it educational or just for entertainment?
 
 ## Who is the target audience? Who will use your app or play your game?
 
 ## What is the scope of your project?
+The scope of this project is to design and implement a browser-based classroom attendance management system for Fraser International College. The application will provide secure login functionality for three types of users: students, professors, and administrators. After logging in, users will interact with a visual classroom seating map that displays real-time seat occupancy.
+
+Attendance will be managed through instructor-controlled sessions. Professors will initiate an attendance session at the beginning of class, which activates the system for that specific classroom and time period. While the session is active, students can log in and mark their attendance by selecting their seat on the classroom map. When the professor ends the session, attendance marking is automatically disabled.
+
+Professors will also be able to modify seating layouts and monitor attendance records. Administrators will manage user accounts and perform system-level actions such as updating or removing student records. The project focuses on automating attendance tracking and improving classroom management through a centralized and visual digital system.
+
 
 ## Does this project have many individual features or one main feature (a possibility with many subproblems)? These are the ‘epics’ of your project.
 
