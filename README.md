@@ -59,7 +59,7 @@ Each epic represents a substantial development component involving database desi
 
 Yes, the workload is sufficient for five group members because each epic is a major feature that includes frontend, backend, database integration, and testing. The work can be divided as:
 
-Member 1 (ArshSaran):  Student Attendance Check-In Module
+Member 1:  Student Attendance Check-In Module
 
 Member 2: Professor Monitoring and Classroom Management Module
 
