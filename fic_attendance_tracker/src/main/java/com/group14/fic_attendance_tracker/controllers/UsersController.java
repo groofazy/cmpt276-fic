@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.group14.fic_attendance_tracker.models.User;
 
 
-
 @Controller
 public class UsersController {
 
@@ -69,4 +68,5 @@ public class UsersController {
     public String showLoginForm(Model model) {
         return "users/login";
     }
+    
 }
