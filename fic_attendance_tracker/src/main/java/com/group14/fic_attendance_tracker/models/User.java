@@ -1,24 +1,28 @@
 package com.group14.fic_attendance_tracker.models;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 
-public class Users {
+@Entity
+@Table(name="users")
+public class User {
     public enum RoleType {
         ADMIN,
         TEACHER,
         STUDENT
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int uid;
     private String name;
     private String password;
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
-    public Users() {
+    public User() {
 
     }
-    public Users(String name, String password, RoleType role) {
+    public User(String name, String password, RoleType role) {
         this.name = name;
         this.password = password;
         this.role = role;
@@ -35,5 +39,16 @@ public class Users {
     public void setPassword(String password) {
         this.password = password;
     }
-
+    public int getUid() {
+        return uid;
+    }
+    public void setUid(int uid) {
+        this.uid = uid;
+    }
+    public RoleType getRole() {
+        return role;
+    }
+    public void setRole(RoleType role) {
+        this.role = role;
+    }
 }
