@@ -24,14 +24,20 @@ public class UsersController {
     @Autowired
     private UserRepository userRepo;
 
-    @GetMapping("users/view")
+    // 
+    @GetMapping("/")
+    public String index() {
+        return "users/index";
+    }
+
+    @GetMapping("/users/view")
     public String getAllUsers(Model model) {
         System.out.println("Getting all users");
 
         List<User> users = userRepo.findAll();
 
         model.addAttribute("us", users);
-        return "users/showAll";
+        return "users/allUsers";
     }
 
     @GetMapping("/users/dashboard")
@@ -40,9 +46,13 @@ public class UsersController {
         return "users/dashboard";
     }
 
+    @GetMapping("/users/add")
+    public String showAddForm(Model model) {
+        return "users/add";
+    }
 
     // database logic
-    @PostMapping("users/add")
+    @PostMapping("/users/add")
     public String addUser(@RequestParam Map<String, String> newUser, HttpServletResponse response) {
         System.out.println("ADD user");
         String newName = newUser.get("name");
@@ -52,6 +62,11 @@ public class UsersController {
 
         userRepo.save(new User(newName, newPass, newRole));
         response.setStatus(201);
-        return "users/addedUser.html";
+        return "redirect:/users/index";
+    }
+
+    @GetMapping("/users/login")
+    public String showLoginForm(Model model) {
+        return "users/login";
     }
 }
