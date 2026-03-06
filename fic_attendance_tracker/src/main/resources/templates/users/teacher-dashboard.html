@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title> Professor Dashboard </title>
+    <link rel = "stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <h1> FIC Attendance Tracker </h1>
+    <h2> Professor Dashboard </h2>
+
+    <hr>
+
+    <p th:text=" 'Welcome, ' +${user.name} +'!'"></p>
+
+    <div class="container">
+        <div class="section">
+           <h3> Attendance Controls </h3>
+
+           <div class="controls">
+
+            <form th:action="@{/attendance/start}" method="post">
+              <button type="submit"> Start Attendance </button>
+            </form>
+
+            <form th:action="@{/attendance/end}" method="post">
+              <button type="submit"> End Attendance  </button>
+            </form>
+
+            <a th:href="@{/users/layout}">
+             <button>Change Seating Layout</button>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Classroom Map Placeholder -->
+    <div class="section">
+
+        <h3>Classroom Map</h3>
+        <p>Seating layout will appear here.</p>
+
+    </div>
+
+    <div class="section">
+
+       <h3> Current Attendance </h3>
+       <table border="1">
+         <tr>
+            <th>Student Name</th>
+            <th>Attendance Status</th>
+         </tr>
+
+         <tr th:each="student : ${students}">
+            <td th:text="${student.name}">  </td>
+            <td th:text="${student.attendanceStatus}">  </td>
+         </tr>
+
+
+        </table>
+    </div>
+
+    <div class="section">
+
+        <a th:href="@{/logout}">
+            <button> Logout </button>
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
