@@ -12,10 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.group14.fic_attendance_tracker.models.UserRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import com.group14.fic_attendance_tracker.models.User;
-
 
 
 @Controller
@@ -62,11 +63,55 @@ public class UsersController {
 
         userRepo.save(new User(newName, newPass, newRole));
         response.setStatus(201);
-        return "redirect:/users/index";
+        return "redirect:/";
     }
 
     @GetMapping("/users/login")
     public String showLoginForm(Model model) {
         return "users/login";
+    }
+ 
+    
+    // login logic
+    @GetMapping("/login")
+    public String getLogin(Model model, HttpServletResponse request, HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null) {
+            return "users/login"; 
+        }
+        else {
+            model.addAttribute("user", user);
+            return "users/protected";
+        }
+
+    }
+
+    @PostMapping("/login")
+    public String loginUser(@RequestParam Map<String, String> formData, Model model, HttpServletRequest request, HttpSession session) {
+        // processing login
+        String name = formData.get("name");
+        String pwd = formData.get("password");
+        // String newRoleStr = formData.get("role");
+        // User.RoleType newRole = User.RoleType.valueOf(newRoleStr);
+
+        List<User> userList = userRepo.findByNameAndPassword(name, pwd);
+        if (userList.isEmpty()) {
+            return "users/login";
+        }
+        else {
+            // Success Login
+            User user = userList.get(0); // assume name and pwd is unique
+            request.getSession().setAttribute("session_user", user);
+            model.addAttribute("user", user);
+
+            return "users/protected";
+        }
+    }
+
+    @GetMapping("/logout")
+    public String destorySession(HttpServletRequest request) {
+        request.getSession().invalidate();
+        return "users/index";
     }
 }
