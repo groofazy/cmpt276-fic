@@ -12,6 +12,9 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <h1>FIC ATTENDANCE TRACKER ACCOUNTS</h1>
+                <div class="mt-4">
+                    <a th:href="@{/}" class="btn btn-secondary">back</a> <!-- Returns back to index.html page-->
+                </div>           
 
                 <ul>
                     <li class="account-details" th:each="user:${us}"> 
