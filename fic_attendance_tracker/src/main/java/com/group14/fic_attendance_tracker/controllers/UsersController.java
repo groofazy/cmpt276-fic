@@ -102,9 +102,16 @@ public class UsersController {
             return "users/login"; 
         }
         else {
-            model.addAttribute("user", user);
+        model.addAttribute("user", user);
+
+        if (user.getRole() == User.RoleType.STUDENT) {
+            return "users/studentView";
+        } else if (user.getRole() == User.RoleType.ADMIN) {
+            return "users/adminView";
+        } else {
             return "users/protected";
         }
+}
 
     }
 
@@ -113,9 +120,6 @@ public class UsersController {
         // processing login
         String name = formData.get("name");
         String pwd = formData.get("password");
-        // String newRoleStr = formData.get("role");
-        // User.RoleType newRole = User.RoleType.valueOf(newRoleStr);
-
         List<User> userList = userRepo.findByNameAndPassword(name, pwd);
         if (userList.isEmpty()) {
             return "users/login";
@@ -133,15 +137,25 @@ public class UsersController {
             else if (user.getRole() == User.RoleType.TEACHER) {
                 return "users/teacher-dashboard";
             }
+            
+            else if (user.getRole() == User.RoleType.STUDENT) {
+                return "users/dashboard"
+                  
             else {
-                return "users/dashboard";
+                return "users/protected";
             }
-        }
+         }
     }
 
     @GetMapping("/logout")
     public String destorySession(HttpServletRequest request) {
         request.getSession().invalidate();
         return "users/index";
+    }
+
+    // route for admin view (add to routing logic for login)
+    @GetMapping("/users/adminview")
+    public String displayAdmin() {
+        return "users/adminView";
     }
 }
