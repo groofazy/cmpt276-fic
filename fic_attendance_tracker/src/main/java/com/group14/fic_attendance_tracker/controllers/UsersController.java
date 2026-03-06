@@ -47,6 +47,27 @@ public class UsersController {
         return "users/dashboard";
     }
 
+    // teacher dashboard
+    @GetMapping("/users/teacher")
+    public String displayTeacherDashboard(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null) {
+            return "redirect:/login";
+
+        }
+
+        model.addAttribute("user", user);
+        List<User> students = userRepo.findAll()
+            .stream()
+            .filter(u -> u.getRole() == User.RoleType.STUDENT)
+            .toList();
+        model.addAttribute("students", students);
+
+        return "users/teacherView";
+
+    }
+
     @GetMapping("/users/add")
     public String showAddForm(Model model) {
         return "users/add";
@@ -87,6 +108,8 @@ public class UsersController {
             return "users/studentView";
         } else if (user.getRole() == User.RoleType.ADMIN) {
             return "users/adminView";
+        } else if (user.getRole() == User.RoleType.TEACHER) {
+            return "users/teacherView";
         } else {
             return "users/protected";
         }
@@ -109,17 +132,22 @@ public class UsersController {
             request.getSession().setAttribute("session_user", user);
             model.addAttribute("user", user);
 
-            if (user.getRole() == User.RoleType.STUDENT) {
-                return "users/studentView";
-            } else if (user.getRole() == User.RoleType.ADMIN) {
+            if (user.getRole() == User.RoleType.ADMIN) {
                 return "users/adminView";
-            } else if (user.getRole() == User.RoleType.TEACHER) {
+            }
+
+            else if (user.getRole() == User.RoleType.TEACHER) {
                 return "users/teacherView";
             }
+            
+            else if (user.getRole() == User.RoleType.STUDENT) {
+                return "users/studentView";
+            }
+                  
             else {
                 return "users/protected";
             }
-        }
+         }
     }
 
     @GetMapping("/logout")
@@ -129,7 +157,7 @@ public class UsersController {
     }
 
     // route for admin view (add to routing logic for login)
-    @GetMapping("/users/adminview")
+    @GetMapping("/users/adminView")
     public String displayAdmin() {
         return "users/adminView";
     }
