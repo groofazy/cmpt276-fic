@@ -64,7 +64,7 @@ public class UsersController {
             .toList();
         model.addAttribute("students", students);
 
-        return "users/teacher-dashboard";
+        return "users/teacherView";
 
     }
 
@@ -108,6 +108,8 @@ public class UsersController {
             return "users/studentView";
         } else if (user.getRole() == User.RoleType.ADMIN) {
             return "users/adminView";
+        } else if (user.getRole() == User.RoleType.TEACHER) {
+            return "users/teacherView";
         } else {
             return "users/protected";
         }
@@ -135,11 +137,11 @@ public class UsersController {
             }
 
             else if (user.getRole() == User.RoleType.TEACHER) {
-                return "users/teacher-dashboard";
+                return "users/teacherView";
             }
             
             else if (user.getRole() == User.RoleType.STUDENT) {
-                return "users/dashboard";
+                return "users/studentView";
             }
                   
             else {
