@@ -114,4 +114,11 @@ public class UsersController {
         request.getSession().invalidate();
         return "users/index";
     }
+
+
+    // route for admin view
+    @GetMapping("/users/adminview")
+    public String displayAdmin() {
+        return "users/adminView";
+    }
 }
