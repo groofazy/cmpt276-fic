@@ -47,6 +47,27 @@ public class UsersController {
         return "users/dashboard";
     }
 
+    // teacher dashboard
+    @GetMapping("/users/teacher")
+    public String displayTeacherDashboard(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null) {
+            return "redirect:/login";
+
+        }
+
+        model.addAttribute("user", user);
+        List<User> students = userRepo.findAll()
+            .stream()
+            .filter(u -> u.getRole() == User.RoleType.STUDENT)
+            .toList();
+        model.addAttribute("students", students);
+
+        return "users/teacher-dashboard";
+
+    }
+
     @GetMapping("/users/add")
     public String showAddForm(Model model) {
         return "users/add";
@@ -109,17 +130,21 @@ public class UsersController {
             request.getSession().setAttribute("session_user", user);
             model.addAttribute("user", user);
 
-            if (user.getRole() == User.RoleType.STUDENT) {
-                return "users/studentView";
-            } else if (user.getRole() == User.RoleType.ADMIN) {
+            if (user.getRole() == User.RoleType.ADMIN) {
                 return "users/adminView";
-            } else if (user.getRole() == User.RoleType.TEACHER) {
-                return "users/teacherView";
             }
+
+            else if (user.getRole() == User.RoleType.TEACHER) {
+                return "users/teacher-dashboard";
+            }
+            
+            else if (user.getRole() == User.RoleType.STUDENT) {
+                return "users/dashboard"
+                  
             else {
                 return "users/protected";
             }
-        }
+         }
     }
 
     @GetMapping("/logout")
