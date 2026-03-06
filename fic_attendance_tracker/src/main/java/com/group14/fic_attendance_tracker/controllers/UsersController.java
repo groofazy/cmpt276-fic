@@ -81,9 +81,16 @@ public class UsersController {
             return "users/login"; 
         }
         else {
-            model.addAttribute("user", user);
+        model.addAttribute("user", user);
+
+        if (user.getRole() == User.RoleType.STUDENT) {
+            return "users/studentView";
+        } else if (user.getRole() == User.RoleType.ADMIN) {
+            return "users/adminView";
+        } else {
             return "users/protected";
         }
+}
 
     }
 
@@ -105,7 +112,13 @@ public class UsersController {
             request.getSession().setAttribute("session_user", user);
             model.addAttribute("user", user);
 
-            return "users/protected";
+            if (user.getRole() == User.RoleType.STUDENT) {
+                return "users/studentView";
+            } else if (user.getRole() == User.RoleType.ADMIN) {
+                return "users/adminView";
+            } else {
+                return "users/protected";
+            }
         }
     }
 

@@ -1,3 +1,7 @@
 body {
     background-color: dimgray;
 }
+
+.card {
+    border-radius: 12px;
+}
