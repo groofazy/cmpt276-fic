@@ -99,9 +99,6 @@ public class UsersController {
         // processing login
         String name = formData.get("name");
         String pwd = formData.get("password");
-        // String newRoleStr = formData.get("role");
-        // User.RoleType newRole = User.RoleType.valueOf(newRoleStr);
-
         List<User> userList = userRepo.findByNameAndPassword(name, pwd);
         if (userList.isEmpty()) {
             return "users/login";
@@ -126,5 +123,11 @@ public class UsersController {
     public String destorySession(HttpServletRequest request) {
         request.getSession().invalidate();
         return "users/index";
+    }
+
+    // route for admin view
+    @GetMapping("/users/adminview")
+    public String displayAdmin() {
+        return "users/adminView";
     }
 }
