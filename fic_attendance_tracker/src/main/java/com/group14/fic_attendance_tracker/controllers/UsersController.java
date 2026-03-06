@@ -113,7 +113,10 @@ public class UsersController {
                 return "users/studentView";
             } else if (user.getRole() == User.RoleType.ADMIN) {
                 return "users/adminView";
-            } else {
+            } else if (user.getRole() == User.RoleType.TEACHER) {
+                return "users/teacherView";
+            }
+            else {
                 return "users/protected";
             }
         }
@@ -125,7 +128,7 @@ public class UsersController {
         return "users/index";
     }
 
-    // route for admin view
+    // route for admin view (add to routing logic for login)
     @GetMapping("/users/adminview")
     public String displayAdmin() {
         return "users/adminView";
