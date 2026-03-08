@@ -15,18 +15,22 @@ body {
 
 .row { 
     display: flex; 
-    gap: 10px; 
+    gap: 25px; 
 }
 
 .desk-group {  
     display: flex;
     width: 120px; 
-    height: 50px; 
+    height: 60px; 
 }
 
 .seat {
     border: 1px solid #000; 
     width: 40px; 
-    height: 50px;
+    height: 60px;
     background-color: #fff;
+}
+
+.seat.selected {
+    background-color: #28a745;
 }

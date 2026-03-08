@@ -202,7 +202,7 @@ public class UsersController {
             } else {
                 return "users/protected";
             }
-        }
+         }
     }
 
     @GetMapping("/logout")

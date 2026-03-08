@@ -6,6 +6,7 @@
     <title>Class Layout</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/script.js}" defer></script>
 </head>
 <body>
     <div class="container-fluid">
@@ -22,9 +23,9 @@
                     <div class="seating-grid">
                         <div class="row" th:each="i : ${#numbers.sequence(1, classMap.numRow)}">
                             <div class="desk-group" th:each="j : ${#numbers.sequence(1, 4)}">
-                                <div class="seat"></div>
-                                <div class="seat"></div>
-                                <div class="seat"></div>
+                                <div th:each="k : ${#numbers.sequence(1, 3)}">
+                                    <button type="button" class="seat" th:data-row="${i}" th:data-desk="${j}" th:data-seat="${k}"></button>
+                                </div>
                             </div>
                         </div>
                     </div>
