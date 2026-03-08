@@ -42,10 +42,12 @@
         <h3>Available Classroom</h3>
         <div style="display: flex; flex-direction: column; gap: 10px">
             <div th:each="map : ${maps}">
-                <button type="button" style="cursor: pointer; padding: 8px;">
-                    <span th:text="${map.className}">Class Name</span><br>
-                    <span th:text="${map.lectureDate}">Lecture Date</span>
-                </button>
+                <a th:href="@{/maps/view/{id}(id=${map.mapId})}">
+                    <button type="button" style="cursor: pointer; padding: 8px;">
+                        <span th:text="${map.className}">Class Name</span><br>
+                        <span th:text="${map.lectureDate}">Lecture Date</span>
+                    </button>
+                </a>
             </div>
         </div>
     </div>

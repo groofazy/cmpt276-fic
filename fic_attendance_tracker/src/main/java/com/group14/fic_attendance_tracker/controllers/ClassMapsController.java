@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -52,6 +53,24 @@ public class ClassMapsController {
             mapRepo.save(new ClassMap(creatorId, className, lectureDate, numRow));
             response.setStatus(201);
             return "redirect:/users/teacher";
+        }
+    }
+
+    // View the map details
+    @GetMapping("/maps/view/{id}")
+    public String viewMap(@PathVariable int id, Model model, HttpSession session) {
+        System.out.println("VIEW Map");
+
+        User user = (User) session.getAttribute("session_user");
+        if (user == null) {
+            return "users/login"; 
+        }
+        else {
+            ClassMap classMap = mapRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
+
+            model.addAttribute("classMap", classMap);
+            return "maps/mapView";
         }
     }
 }

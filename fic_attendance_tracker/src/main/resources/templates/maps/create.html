@@ -8,39 +8,38 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-md-4">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
                 <div class="mt-4">
-                    <a th:href="@{/users/teacher}" class="btn btn-secondary">Back</a> <!-- Returns back to Teacher View Dashboard page-->
+                    <a th:href="@{/back}" class="btn btn-secondary">Back</a> <!-- Returns back to Teacher View Dashboard page-->
                 </div>                   
-                    <h1 class="text-center mt-5 mb-4">Create New Class</h1>
+                <h1 class="text-center mt-5 mb-4">Create New Class</h1>
 
-                    <form action="/maps/create" method="post">
+                <form action="/maps/create" method="post">
 
-                        <div class="mb-3">
-                            <label for="className">Class Name:</label>
-                            <input type="text" name="className" class="form-control form-control-lg" placeholder="Class Name (E.g: CMPT 276)" required>
-                        </div>
+                    <div class="mb-3">
+                        <label for="className">Class Name:</label>
+                        <input type="text" name="className" class="form-control form-control-lg" placeholder="Class Name (E.g: CMPT 276)" required>
+                    </div>
 
-                        <div class="mb-3">
-                            <label for="lectureDate">Lecture Date:</label>
-                            <input type="date" name="lectureDate" class="form-control form-control-lg" required>
-                        </div>
+                    <div class="mb-3">
+                        <label for="lectureDate">Lecture Date:</label>
+                        <input type="date" name="lectureDate" class="form-control form-control-lg" required>
+                    </div>
 
-                        <div class="mb-3">
-                            <label for="numRow">Number of Rows:</label>
-                            <input type="number" name="numRow" class="form-control form-control-lg" min="1" max="10" required>
-                            <small class="text-muted">Each row will contain 4 blocks of 3 seats.</small>
-                        </div>
+                    <div class="mb-3">
+                        <label for="numRow">Number of Rows:</label>
+                        <input type="number" name="numRow" class="form-control form-control-lg" min="1" max="10" required>
+                        <small class="text-muted">Each row will contain 4 blocks of 3 seats.</small>
+                    </div>
 
-                        <div class="d-grid gap-2">
-                            <input class="btn btn-primary" type="submit" value="Generate Map" />
-                        </div>
-                    </form>
-                </div>
+                    <div class="d-grid gap-2">
+                        <input class="btn btn-primary" type="submit" value="Generate Map" />
+                    </div>
+                </form>
             </div>
         </div>
-    
+    </div>
 </body>
 </html>
