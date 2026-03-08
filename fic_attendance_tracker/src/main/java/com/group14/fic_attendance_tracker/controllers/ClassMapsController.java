@@ -26,12 +26,10 @@ public class ClassMapsController {
     @GetMapping("/maps/create")
     public String showCreateMapForm(Model model, HttpSession session) {
         User user = (User) session.getAttribute("session_user");
-        if (user == null || !user.getRole().equals("TEACHER")) {
+        if (user == null || user.getRole() != User.RoleType.TEACHER) {
             return "users/login"; 
         }
-        else {
-            return "maps/create";
-        }
+        return "maps/create";
     }
 
     // Database logic
@@ -46,14 +44,14 @@ public class ClassMapsController {
         System.out.println("CREATE Map");
 
         User user = (User) session.getAttribute("session_user");
-        if (user == null || !user.getRole().equals("TEACHER")) {
+        if (user == null || user.getRole() != User.RoleType.TEACHER) {
             return "users/login"; 
         }
         else {
             int creatorId = user.getUid();
             mapRepo.save(new ClassMap(creatorId, className, lectureDate, numRow));
             response.setStatus(201);
-            return "users/teacherView";
+            return "redirect:/users/teacher";
         }
     }
 }

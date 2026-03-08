@@ -10,13 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.group14.fic_attendance_tracker.models.UserRepository;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import com.group14.fic_attendance_tracker.models.User;
+import com.group14.fic_attendance_tracker.models.UserRepository;
+import com.group14.fic_attendance_tracker.models.ClassMap;
+import com.group14.fic_attendance_tracker.models.ClassMapRepository;
 
 
 @Controller
@@ -24,6 +25,9 @@ public class UsersController {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private ClassMapRepository mapRepo;
 
     // 
     @GetMapping("/")
@@ -45,6 +49,34 @@ public class UsersController {
     public String displayDashboard() {
         System.out.println("Displaying Dashboard");
         return "users/dashboard";
+    }
+
+    // teacher dashboard
+    @GetMapping("/users/teacher")
+    public String displayTeacherDashboard(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null) {
+            return "redirect:/login";
+
+        }
+        
+        // Fetch all students
+        model.addAttribute("user", user);
+        List<User> students = userRepo.findAll()
+            .stream()
+            .filter(u -> u.getRole() == User.RoleType.STUDENT)
+            .toList();
+        model.addAttribute("students", students);
+
+        // Fetch all maps created by that teacher
+        List<ClassMap> maps = mapRepo.findAll()
+            .stream()
+            .filter(map -> map.getCreatorId() == user.getUid())
+            .toList();
+        model.addAttribute("maps", maps);
+
+        return "users/teacherView";
     }
 
     @GetMapping("/users/add")
@@ -81,17 +113,18 @@ public class UsersController {
             return "users/login"; 
         }
         else {
-        model.addAttribute("user", user);
+            model.addAttribute("user", user);
 
-        if (user.getRole() == User.RoleType.STUDENT) {
-            return "users/studentView";
-        } else if (user.getRole() == User.RoleType.ADMIN) {
-            return "users/adminView";
-        } else {
-            return "users/protected";
+            if (user.getRole() == User.RoleType.STUDENT) {
+                return "users/studentView";
+            } else if (user.getRole() == User.RoleType.ADMIN) {
+                return "users/adminView";
+            } else if (user.getRole() == User.RoleType.TEACHER) {
+                return "users/teacherView";
+            } else {
+                return "users/protected";
+            }
         }
-}
-
     }
 
     @PostMapping("/login")
@@ -109,14 +142,22 @@ public class UsersController {
             request.getSession().setAttribute("session_user", user);
             model.addAttribute("user", user);
 
-            if (user.getRole() == User.RoleType.STUDENT) {
-                return "users/studentView";
-            } else if (user.getRole() == User.RoleType.ADMIN) {
+            if (user.getRole() == User.RoleType.ADMIN) {
                 return "users/adminView";
-            } else {
+            }
+
+            else if (user.getRole() == User.RoleType.TEACHER) {
+                return "users/teacherView";
+            }
+            
+            else if (user.getRole() == User.RoleType.STUDENT) {
+                return "users/studentView";
+            }
+                  
+            else {
                 return "users/protected";
             }
-        }
+         }
     }
 
     @GetMapping("/logout")
@@ -125,8 +166,8 @@ public class UsersController {
         return "users/index";
     }
 
-    // route for admin view
-    @GetMapping("/users/adminview")
+    // route for admin view (add to routing logic for login)
+    @GetMapping("/users/adminView")
     public String displayAdmin() {
         return "users/adminView";
     }

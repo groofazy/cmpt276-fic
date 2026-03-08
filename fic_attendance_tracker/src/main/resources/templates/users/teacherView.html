@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title> Professor Dashboard </title>
+    <link rel = "stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <h1> FIC Attendance Tracker </h1>
+    <h2> Professor Dashboard </h2>
+
+    <hr>
+
+    <p th:text=" 'Welcome, ' +${user.name} +'!'"></p>
+
+    <div class="container">
+        <div class="section">
+           <h3> Attendance Controls </h3>
+
+           <div class="controls">
+
+            <form th:action="@{/maps/create}" method="get">
+              <button type="submit" style="cursor: pointer;"> Start Attendance - Create New Class </button>
+            </form>
+
+            <form th:action="@{/attendance/end}" method="post">
+              <button type="submit" style="cursor: pointer;"> End Attendance - Close Current Class </button>
+            </form>
+
+            <a th:href="@{/users/layout}">
+              <button style="cursor: pointer;">Change Seating Layout</button>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Classroom Map Placeholder -->
+    <div class="section">
+
+        <h3>Available Classroom</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+            <div th:each="map : ${maps}">
+                <button type="button" style="cursor: pointer; padding: 8px;">
+                    <span th:text="${map.className}">Class Name</span><br>
+                    <span th:text="${map.lectureDate}">Lecture Date</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+
+       <h3> Current Attendance </h3>
+       <table border="1">
+         <tr>
+            <th>Student Name</th>
+            <th>Attendance Status</th>
+         </tr>
+
+         <!-- <tr th:each="student : ${students}">
+            <td th:text="${student.name}">  </td>
+            <td th:text="${student.attendanceStatus}">  </td>
+         </tr> -->
+
+
+        </table>
+    </div>
+
+    <div class="section">
+
+        <a th:href="@{/logout}">
+            <button style="cursor: pointer;"> Logout </button>
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
