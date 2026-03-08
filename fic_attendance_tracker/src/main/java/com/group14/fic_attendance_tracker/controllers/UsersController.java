@@ -10,13 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.group14.fic_attendance_tracker.models.UserRepository;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import com.group14.fic_attendance_tracker.models.User;
+import com.group14.fic_attendance_tracker.models.UserRepository;
+import com.group14.fic_attendance_tracker.models.ClassMap;
+import com.group14.fic_attendance_tracker.models.ClassMapRepository;
 
 
 @Controller
@@ -24,6 +25,9 @@ public class UsersController {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private ClassMapRepository mapRepo;
 
     // 
     @GetMapping("/")
@@ -47,6 +51,28 @@ public class UsersController {
         return "users/dashboard";
     }
 
+    // student dashboard
+    @GetMapping("/users/student")
+    public String displayStudentDashboard(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        // Fetch all maps to display
+        // Iteration 1 will display all the maps to students
+        // Future Iteration will have logic to display only enrolled class
+        List<ClassMap> maps = mapRepo.findAll()
+            .stream()
+            .toList();
+
+        model.addAttribute("user", user);
+        model.addAttribute("maps", maps);
+
+        return "users/studentView";
+    }
+
     // teacher dashboard
     @GetMapping("/users/teacher")
     public String displayTeacherDashboard(HttpSession session, Model model) {
@@ -56,7 +82,8 @@ public class UsersController {
             return "redirect:/login";
 
         }
-
+        
+        // Fetch all students
         model.addAttribute("user", user);
         List<User> students = userRepo.findAll()
             .stream()
@@ -64,8 +91,14 @@ public class UsersController {
             .toList();
         model.addAttribute("students", students);
 
-        return "users/teacherView";
+        // Fetch all maps created by that teacher
+        List<ClassMap> maps = mapRepo.findAll()
+            .stream()
+            .filter(map -> map.getCreatorId() == user.getUid())
+            .toList();
+        model.addAttribute("maps", maps);
 
+        return "users/teacherView";
     }
 
     @GetMapping("/users/add")
@@ -102,19 +135,18 @@ public class UsersController {
             return "users/login"; 
         }
         else {
-        model.addAttribute("user", user);
+            model.addAttribute("user", user);
 
-        if (user.getRole() == User.RoleType.STUDENT) {
-            return "users/studentView";
-        } else if (user.getRole() == User.RoleType.ADMIN) {
-            return "users/adminView";
-        } else if (user.getRole() == User.RoleType.TEACHER) {
-            return "users/teacherView";
-        } else {
-            return "users/protected";
+            if (user.getRole() == User.RoleType.STUDENT) {
+                return "redirect:/users/student";
+            } else if (user.getRole() == User.RoleType.ADMIN) {
+                return "users/adminView";
+            } else if (user.getRole() == User.RoleType.TEACHER) {
+                return "redirect:/users/teacher";
+            } else {
+                return "users/protected";
+            }
         }
-}
-
     }
 
     @PostMapping("/login")
@@ -137,14 +169,37 @@ public class UsersController {
             }
 
             else if (user.getRole() == User.RoleType.TEACHER) {
-                return "users/teacherView";
+                return "redirect:/users/teacher";
             }
             
             else if (user.getRole() == User.RoleType.STUDENT) {
-                return "users/studentView";
+                return "redirect:/users/student";
             }
                   
             else {
+                return "users/protected";
+            }
+         }
+    }
+
+    // Back button logic (Back button in Create page and mapView page)
+    @GetMapping("/back")
+    public String getBack(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null) {
+            return "users/login"; 
+        }
+        else {
+            model.addAttribute("user", user);
+
+            if (user.getRole() == User.RoleType.STUDENT) {
+                return "redirect:/users/student";
+            } else if (user.getRole() == User.RoleType.ADMIN) {
+                return "users/adminView";
+            } else if (user.getRole() == User.RoleType.TEACHER) {
+                return "redirect:/users/teacher";
+            } else {
                 return "users/protected";
             }
          }

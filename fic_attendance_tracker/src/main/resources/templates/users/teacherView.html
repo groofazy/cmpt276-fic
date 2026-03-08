@@ -24,16 +24,16 @@
 
            <div class="controls">
 
-            <form th:action="@{/attendance/start}" method="post">
-              <button type="submit"> Start Attendance </button>
+            <form th:action="@{/maps/create}" method="get">
+              <button type="submit" style="cursor: pointer;"> Start Attendance - Create New Class </button>
             </form>
 
             <form th:action="@{/attendance/end}" method="post">
-              <button type="submit"> End Attendance  </button>
+              <button type="submit" style="cursor: pointer;"> End Attendance - Close Current Class </button>
             </form>
 
             <a th:href="@{/users/layout}">
-             <button>Change Seating Layout</button>
+              <button style="cursor: pointer;">Change Seating Layout</button>
             </a>
 
         </div>
@@ -42,9 +42,17 @@
     <!-- Classroom Map Placeholder -->
     <div class="section">
 
-        <h3>Classroom Map</h3>
-        <p>Seating layout will appear here.</p>
-
+        <h3>Available Classroom</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+            <div th:each="map : ${maps}">
+                <a th:href="@{/maps/view/{id}(id=${map.mapId})}">
+                    <button type="button" style="cursor: pointer; padding: 8px;">
+                        <span th:text="${map.className}">Class Name</span><br>
+                        <span th:text="${map.lectureDate}">Lecture Date</span>
+                    </button>
+                </a>
+            </div>
+        </div>
     </div>
 
     <div class="section">
@@ -56,10 +64,10 @@
             <th>Attendance Status</th>
          </tr>
 
-         <tr th:each="student : ${students}">
+         <!-- <tr th:each="student : ${students}">
             <td th:text="${student.name}">  </td>
             <td th:text="${student.attendanceStatus}">  </td>
-         </tr>
+         </tr> -->
 
 
         </table>
@@ -68,7 +76,7 @@
     <div class="section">
 
         <a th:href="@{/logout}">
-            <button> Logout </button>
+            <button style="cursor: pointer;"> Logout </button>
         </a>
     </div>
 
