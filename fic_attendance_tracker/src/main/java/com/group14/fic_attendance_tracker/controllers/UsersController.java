@@ -51,7 +51,7 @@ public class UsersController {
         return "users/dashboard";
     }
 
-    // teacher dashboard
+    // student dashboard
     @GetMapping("/users/student")
     public String displayStudentDashboard(HttpSession session, Model model) {
         User user = (User) session.getAttribute("session_user");
