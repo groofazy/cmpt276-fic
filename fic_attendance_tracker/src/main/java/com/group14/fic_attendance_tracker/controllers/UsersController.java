@@ -9,14 +9,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.group14.fic_attendance_tracker.models.UserRepository;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import com.group14.fic_attendance_tracker.models.User;
+import com.group14.fic_attendance_tracker.models.UserRepository;
+import com.group14.fic_attendance_tracker.models.ClassMap;
+import com.group14.fic_attendance_tracker.models.ClassMapRepository;
 
 
 @Controller
@@ -24,6 +26,9 @@ public class UsersController {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private ClassMapRepository mapRepo;
 
     // 
     @GetMapping("/")
@@ -45,6 +50,56 @@ public class UsersController {
     public String displayDashboard() {
         System.out.println("Displaying Dashboard");
         return "users/dashboard";
+    }
+
+    // student dashboard
+    @GetMapping("/users/student")
+    public String displayStudentDashboard(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        // Fetch all maps to display
+        // Iteration 1 will display all the maps to students
+        // Future Iteration will have logic to display only enrolled class
+        List<ClassMap> maps = mapRepo.findAll()
+            .stream()
+            .toList();
+
+        model.addAttribute("user", user);
+        model.addAttribute("maps", maps);
+
+        return "users/studentView";
+    }
+
+    // teacher dashboard
+    @GetMapping("/users/teacher")
+    public String displayTeacherDashboard(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null) {
+            return "redirect:/login";
+
+        }
+        
+        // Fetch all students
+        model.addAttribute("user", user);
+        List<User> students = userRepo.findAll()
+            .stream()
+            .filter(u -> u.getRole() == User.RoleType.STUDENT)
+            .toList();
+        model.addAttribute("students", students);
+
+        // Fetch all maps created by that teacher
+        List<ClassMap> maps = mapRepo.findAll()
+            .stream()
+            .filter(map -> map.getCreatorId() == user.getUid())
+            .toList();
+        model.addAttribute("maps", maps);
+
+        return "users/teacherView";
     }
 
     @GetMapping("/users/add")
@@ -82,9 +137,17 @@ public class UsersController {
         }
         else {
             model.addAttribute("user", user);
-            return "users/protected";
-        }
 
+            if (user.getRole() == User.RoleType.STUDENT) {
+                return "redirect:/users/student";
+            } else if (user.getRole() == User.RoleType.ADMIN) {
+                return "users/adminView";
+            } else if (user.getRole() == User.RoleType.TEACHER) {
+                return "redirect:/users/teacher";
+            } else {
+                return "users/protected";
+            }
+        }
     }
 
     @PostMapping("/login")
@@ -92,9 +155,6 @@ public class UsersController {
         // processing login
         String name = formData.get("name");
         String pwd = formData.get("password");
-        // String newRoleStr = formData.get("role");
-        // User.RoleType newRole = User.RoleType.valueOf(newRoleStr);
-
         List<User> userList = userRepo.findByNameAndPassword(name, pwd);
         if (userList.isEmpty()) {
             return "users/login";
@@ -105,8 +165,45 @@ public class UsersController {
             request.getSession().setAttribute("session_user", user);
             model.addAttribute("user", user);
 
-            return "users/protected";
+            if (user.getRole() == User.RoleType.ADMIN) {
+                return "users/adminView";
+            }
+
+            else if (user.getRole() == User.RoleType.TEACHER) {
+                return "redirect:/users/teacher";
+            }
+            
+            else if (user.getRole() == User.RoleType.STUDENT) {
+                return "redirect:/users/student";
+            }
+                  
+            else {
+                return "users/protected";
+            }
+         }
+    }
+
+    // Back button logic (Back button in Create page and mapView page)
+    @GetMapping("/back")
+    public String getBack(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null) {
+            return "users/login"; 
         }
+        else {
+            model.addAttribute("user", user);
+
+            if (user.getRole() == User.RoleType.STUDENT) {
+                return "redirect:/users/student";
+            } else if (user.getRole() == User.RoleType.ADMIN) {
+                return "users/adminView";
+            } else if (user.getRole() == User.RoleType.TEACHER) {
+                return "redirect:/users/teacher";
+            } else {
+                return "users/protected";
+            }
+         }
     }
 
     @GetMapping("/logout")
@@ -114,4 +211,86 @@ public class UsersController {
         request.getSession().invalidate();
         return "users/index";
     }
+
+    // route for admin view (add to routing logic for login)
+    @GetMapping("/users/adminView")
+    public String displayAdmin() {
+        return "users/adminView";
+    }
+
+        // ===== ADMIN ENDPOINTS =====
+    
+    @GetMapping("/admin/dashboard")
+    public String adminDashboard(Model model) {
+        model.addAttribute("students", List.of());
+        model.addAttribute("professors", List.of());
+        model.addAttribute("classrooms", List.of());
+        model.addAttribute("attendanceReports", List.of());
+        return "users/adminView";
+    }
+    
+    @GetMapping("/admin/students")
+    public String listStudents(Model model) {
+        model.addAttribute("students", List.of());
+        return "users/adminView";
+    }
+    
+    @GetMapping("/admin/students/add")
+    public String showAddStudentForm() {
+        return "users/adminView";
+    }
+    
+    @PostMapping("/admin/students/add")
+    public String addStudent(@RequestParam Map<String, String> formData) {
+        return "redirect:/admin/students";
+    }
+    
+    @GetMapping("/admin/students/edit/{id}")
+    public String showEditStudentForm(@PathVariable Long id, Model model) {
+        model.addAttribute("students", List.of());
+        return "users/adminView";
+    }
+    
+    @PostMapping("/admin/students/edit/{id}")
+    public String editStudent(@PathVariable Long id, @RequestParam Map<String, String> formData) {
+        return "redirect:/admin/students";
+    }
+    
+    @PostMapping("/admin/students/delete/{id}")
+    public String deleteStudent(@PathVariable Long id) {
+        return "redirect:/admin/students";
+    }
+    
+    @GetMapping("/admin/professors")
+    public String listProfessors(Model model) {
+        model.addAttribute("professors", List.of());
+        return "users/adminView";
+    }
+    
+    @GetMapping("/admin/professors/add")
+    public String showAddProfessorForm() {
+        return "users/adminView";
+    }
+    
+    @PostMapping("/admin/professors/add")
+    public String addProfessor(@RequestParam Map<String, String> formData) {
+        return "redirect:/admin/professors";
+    }
+    
+    @GetMapping("/admin/professors/edit/{id}")
+    public String showEditProfessorForm(@PathVariable Long id, Model model) {
+        model.addAttribute("professors", List.of());
+        return "users/adminView";
+    }
+    
+    @PostMapping("/admin/professors/edit/{id}")
+    public String editProfessor(@PathVariable Long id, @RequestParam Map<String, String> formData) {
+        return "redirect:/admin/professors";
+    }
+    
+    @PostMapping("/admin/professors/delete/{id}")
+    public String deleteProfessor(@PathVariable Long id) {
+        return "redirect:/admin/professors";
+    }
+    
 }

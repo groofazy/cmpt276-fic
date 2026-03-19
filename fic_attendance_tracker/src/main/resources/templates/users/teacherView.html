@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Professor Dashboard </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel = "stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <h1> FIC Attendance Tracker </h1>
+    <h2> Professor Dashboard </h2>
+
+    <hr>
+
+    <p th:text=" 'Welcome, ' +${user.name} +'!'"></p>
+
+    <div class="container">
+        <div class="section">
+           <h3> Attendance Controls </h3>
+
+           <div class="controls">
+
+            <form th:action="@{/maps/create}" method="get">
+              <button type="submit" style="cursor: pointer;"> Start Attendance - Create New Class </button>
+            </form>
+
+            <form th:action="@{/attendance/end}" method="post">
+              <button type="submit" style="cursor: pointer;"> End Attendance - Close Current Class </button>
+            </form>
+
+            <a th:href="@{/users/layout}">
+              <button style="cursor: pointer;">Change Seating Layout</button>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Classroom Map Placeholder -->
+    <div class="section">
+
+        <h3>Available Classroom</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+            <div th:each="map : ${maps}">
+                <a th:href="@{/maps/view/{id}(id=${map.mapId})}">
+                    <button type="button" style="cursor: pointer; padding: 8px;">
+                        <span th:text="${map.className}">Class Name</span><br>
+                        <span th:text="${map.lectureDate}">Lecture Date</span>
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+
+       <h3> Current Attendance </h3>
+       <table border="1">
+         <tr>
+            <th>Student Name</th>
+            <th>Attendance Status</th>
+         </tr>
+
+         <!-- <tr th:each="student : ${students}">
+            <td th:text="${student.name}">  </td>
+            <td th:text="${student.attendanceStatus}">  </td>
+         </tr> -->
+
+
+        </table>
+    </div>
+
+    <div class="section">
+
+        <a th:href="@{/logout}">
+            <button style="cursor: pointer;"> Logout </button>
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
