@@ -6,31 +6,145 @@ body {
     border-radius: 12px;
 }
 
-.seating-grid { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 15px; 
-    align-items: center; 
-}
-
-.row { 
-    display: flex; 
-    gap: 25px; 
-}
-
-.desk-group {  
+/* Seating Grid */
+.seating-grid {
     display: flex;
-    width: 120px; 
-    height: 60px; 
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.seat-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+}
+
+.desk-group {
+    display: flex;
+    width: 138px;
+    height: 60px;
+}
+
+.row-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ccc;
 }
 
 .seat {
-    border: 1px solid #000; 
-    width: 40px; 
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    border: 1px solid #000;
+    border-radius: 4px;
+    width: 46px;
     height: 60px;
-    background-color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 4px;
+    transition: background-color 0.15s, transform 0.1s;
 }
 
-.seat.selected {
+/* Seat states */
+.seat-available {
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.seat-available:hover {
+    background-color: #e8e8e8;
+    transform: scale(1.05);
+}
+
+.seat-selected {
+    background-color: #FDE047;
+    cursor: pointer;
+}
+
+.seat-mine {
     background-color: #28a745;
+    color: #fff;
+    border-color: #1e7e34;
+}
+
+.seat-mine .seat-name {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 15px;
+    font-weight: 400;
+    max-width: 42px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.seat-taken {
+    background-color: #A9A9A9;
+    color: #A9A9A9;
+    cursor: not-allowed;
+    
+}
+
+/* Instruction Text */
+.instruction-text {
+    color: #000;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.classroom-front {
+    color: #ccc;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #aaa;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+/* Confirmation Pop-Up */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+}
+
+.modal-box {
+    background: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    text-align: center;
+    min-width: 320px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-box h5 {
+    margin-bottom: 0.75rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
 }

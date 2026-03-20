@@ -3,7 +3,7 @@ package com.group14.fic_attendance_tracker.models;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="seats")
+@Table(name = "seats")
 public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
