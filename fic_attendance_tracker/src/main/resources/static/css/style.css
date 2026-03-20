@@ -66,3 +66,22 @@ body {
 .seat.selected {
     background-color: #28a745;
 }
+
+.seat:hover {
+    cursor: pointer;
+    background-color: #e9ecef;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #000;
+    background-color: #fff;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.selected-box {
+    background-color: #28a745;
+}
