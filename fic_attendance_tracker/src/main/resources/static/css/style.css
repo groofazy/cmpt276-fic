@@ -1,33 +1,65 @@
 body {
-    background-color: dimgray;
+    background-color: #f5f7fb;
 }
 
 .card {
     border-radius: 12px;
 }
 
-.seating-grid { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 15px; 
-    align-items: center; 
+.dashboard-section {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
-.row { 
-    display: flex; 
-    gap: 25px; 
+.class-link {
+    display: block;
+    text-decoration: none;
+    border: 1px solid #0d6efd;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
-.desk-group {  
+.class-link:hover {
+    background-color: #f0f6ff;
+    transform: translateY(-1px);
+}
+
+.class-link strong {
+    display: block;
+    font-size: 1.05rem;
+}
+
+.class-link span {
+    color: #6c757d;
+}
+
+.seating-grid {
     display: flex;
-    width: 120px; 
-    height: 60px; 
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+}
+
+.row {
+    display: flex;
+    gap: 30px;
+}
+
+.desk-group {
+    display: flex;
+    width: 132px;
+    height: 64px;
 }
 
 .seat {
-    border: 1px solid #000; 
-    width: 40px; 
-    height: 60px;
+    border: 1px solid #000;
+    width: 44px;
+    height: 64px;
     background-color: #fff;
 }
 
