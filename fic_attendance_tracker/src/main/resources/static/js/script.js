@@ -5,7 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const mapId    = parseInt(mapData.dataset.mapId);
     const userId   = parseInt(mapData.dataset.userId);
     const userName = mapData.dataset.userName;
-    const isStudent = mapData.dataset.userRole === 'STUDENT';
+    const userRole = mapData.dataset.userRole;
+    const isStudent = userRole === 'STUDENT';
+    const isTeacher = userRole === 'TEACHER';
 
     const instructionText = document.getElementById('instruction-text');
     const confirmBtn    = document.getElementById('confirm-btn');
@@ -15,38 +17,42 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedSeat = null;
     let hasSavedSeat = false;
 
-    function seatKey(row, number) {
-        return `.seat[data-row="${row}"][data-number="${number}"]`;
-    }
-
     // Load existing seat data
-    fetch(`/seat/${mapId}`)
+    fetch(`/seat/load/${mapId}`)
         .then(res => res.json())
         .then(seats => {
             seats.forEach(s => {
-                const btn = document.querySelector(seatKey(s.seatRow, s.seatNumber));
+                const btn = document.querySelector(`.seat[data-row="${s.seatRow}"][data-number="${s.seatNumber}"]`);
                 if (!btn) return;
 
                 btn.classList.remove('seat-available');
-
-                // Mark that this student already has a confirmed seat
-                if (s.studentId === userId) {
+                
+                // User is student 
+                // Their own seat is green
+                // Other taken seat is gray
+                if (isStudent && s.studentId === userId) {
                     btn.classList.add('seat-mine');
                     btn.innerHTML = `${s.seatNumber}<br><span class="seat-name">${userName}</span>`;
                     hasSavedSeat = true;
 
-                // Mark that this seat is not from this student
-                } else if (s.studentId !== null) {
+                // User is teacher 
+                // Other taken seat is blue and can hover    
+                } else if (isTeacher && s.studentId !== null) {
+                    btn.classList.add('seat-taken-teacher');
+                    btn.title = `Student ID: ${s.studentId}\nStudent Name: ${s.studentName || 'N/A'}`;
+                
+                } else {
                     btn.classList.add('seat-taken');
                     btn.disabled = true;
                 }
             });
 
-            // Hide the instructions
             if (hasSavedSeat && instructionText) {
                 instructionText.style.display = 'none';
             }
         });
+
+    if (!isStudent) return;
 
     // Seat click handler
     document.querySelectorAll('.seat').forEach(seat => {
@@ -80,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedSeat = seat;
             confirmBtn.style.display = 'inline-block';
             
-            // HIDE the instruction text
+            // Hide the instruction text
             if (instructionText) {
                 instructionText.style.display = 'none'; 
             }

@@ -54,7 +54,7 @@ body {
     transition: background-color 0.15s, transform 0.1s;
 }
 
-/* Seat states */
+/* Seat states for Student View*/
 .seat-available {
     background-color: #fff;
     cursor: pointer;
@@ -93,7 +93,23 @@ body {
     background-color: #A9A9A9;
     color: #A9A9A9;
     cursor: not-allowed;
-    
+}
+
+/* Seat states for Teacher View*/
+.seat-taken-teacher {
+    background-color: #4A90D9;
+    color: #fff;
+    border-color: #3A7BC8;
+    cursor: default;
+}
+
+body.teacher-view .seat-available {
+    cursor: default;
+}
+
+body.teacher-view .seat-available:hover {
+    background-color: #fff;
+    transform: none;
 }
 
 /* Instruction Text */

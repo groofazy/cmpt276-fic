@@ -11,9 +11,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.group14.fic_attendance_tracker.models.User;
+import com.group14.fic_attendance_tracker.models.UserRepository;
 import com.group14.fic_attendance_tracker.models.Seat;
 import com.group14.fic_attendance_tracker.models.SeatRepository;
 
@@ -23,10 +27,38 @@ public class SeatController {
     @Autowired
     private SeatRepository seatRepo;
 
-    @GetMapping("/seat/{mapId}")
+    @Autowired
+    private UserRepository userRepo;
+
+    @GetMapping("/seat/load/{mapId}")
     @ResponseBody
-    public List<Seat> getSeatsByMap(@PathVariable int mapId) {
-        return seatRepo.findByMapId(mapId);
+    public List<Map<String, Object>> getSeatsByMap(@PathVariable int mapId) {
+        List<Seat> seats = seatRepo.findByMapId(mapId);
+        List<Map<String, Object>> response = new ArrayList<>();
+        
+        // Extract seat row, seat number and student Id for each seat
+        for (Seat seat : seats) {
+            Map<String, Object> seatData = new HashMap<>();
+            seatData.put("seatRow", seat.getSeatRow());
+            seatData.put("seatNumber", seat.getSeatNumber());
+            seatData.put("studentId", seat.getStudentId());
+
+            // Look for the student taken that seat
+            if (seat.getStudentId() != null) {
+                User student = userRepo.findByUid(seat.getStudentId());
+                if (student != null) {
+                    seatData.put("studentName", student.getName());
+                } else {
+                    seatData.put("studentName", "Unknown Student");
+                }
+            } else {
+                seatData.put("studentName", null);
+            }
+
+            response.add(seatData);
+        }
+        
+        return response; 
     }
 
     // Database logic
