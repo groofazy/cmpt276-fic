@@ -95,6 +95,7 @@ public class UsersController {
         List<ClassMap> maps = mapRepo.findAll()
             .stream()
             .filter(map -> map.getCreatorId() == user.getUid())
+            .filter(map -> map.getActive() != null && map.getActive() == true)
             .toList();
         model.addAttribute("maps", maps);
 

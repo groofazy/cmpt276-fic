@@ -27,6 +27,8 @@ public class ClassMap {
     @Column(name="num_row")
     private int numRow;
 
+    @Column(name="active")
+    private Boolean active = true;
     // Constructor for Map object
     public ClassMap(){
 
@@ -36,6 +38,7 @@ public class ClassMap {
         this.className = className;
         this.lectureDate = lectureDate;
         this.numRow = numRow;
+        this.active = true;
     }
 
     // Getter and setter for each variable
@@ -72,5 +75,13 @@ public class ClassMap {
     }
     public void setNumRow(int numRow){
         this.numRow = numRow;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }
