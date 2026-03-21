@@ -1,9 +1,8 @@
 package com.group14.fic_attendance_tracker.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.servlet.http.HttpSession;
@@ -18,8 +17,8 @@ public class AttendanceController {
     @Autowired
     private ClassMapRepository mapRepo;
 
-    @PostMapping("/attendance/end")
-    public String endAttendance(HttpSession session) {
+    @PostMapping("/attendance/end/{id}")
+    public String endAttendance(@PathVariable int id, HttpSession session) {
 
         User user = (User) session.getAttribute("session_user");
 
@@ -27,16 +26,11 @@ public class AttendanceController {
             return "redirect:/login";
         }
 
-        List<ClassMap> maps = mapRepo.findAll()
-            .stream()
-            .filter(map -> map.getCreatorId() == user.getUid())
-            .filter(map -> map.getActive() != null && map.getActive())
-            .toList();
+        ClassMap map = mapRepo.findById(id).orElse(null);
 
-        if (!maps.isEmpty()) {
-            ClassMap activeMap = maps.get(0);
-            activeMap.setActive(false);
-            mapRepo.save(activeMap);
+        if (map != null && map.getCreatorId() == user.getUid()) {
+            map.setActive(false);
+            mapRepo.save(map);
         }
 
         return "redirect:/users/teacher";
