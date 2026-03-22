@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import com.group14.fic_attendance_tracker.models.User;
 import com.group14.fic_attendance_tracker.models.ClassMap;
 import com.group14.fic_attendance_tracker.models.ClassMapRepository;
+import com.group14.fic_attendance_tracker.models.SeatRepository;
 
 @Controller
 public class ClassMapsController {
@@ -24,6 +25,9 @@ public class ClassMapsController {
 
     @Autowired
     private ClassMapRepository mapRepo;
+
+    @Autowired
+    private SeatRepository seatRepo;
 
     @GetMapping("/maps/create")
     public String showCreateMapForm(Model model, HttpSession session) {
@@ -71,6 +75,8 @@ public class ClassMapsController {
         model.addAttribute("classMap", classMap);
         model.addAttribute("seatClasses", seatClasses);
         model.addAttribute("currentUserId", user.getUid());
+
+        model.addAttribute("sessionUser", user);
 
         return "maps/mapView";
     }
@@ -175,4 +181,24 @@ public class ClassMapsController {
             mapRepo.save(classMap);
         }
     }
+
+    @PostMapping("/maps/delete/{id}")
+    public String deleteMap(@PathVariable int id, HttpSession session) {
+
+      User user = (User) session.getAttribute("session_user");
+
+      if (user == null) {
+          return "redirect:/login";
+      }
+
+      ClassMap map = mapRepo.findById(id).orElse(null);
+
+      if (map != null && map.getCreatorId() == user.getUid()) {
+        seatRepo.deleteByMapId(id);
+        mapRepo.delete(map);
+      }
+
+      return "redirect:/users/teacher";
+    }
 }
+
