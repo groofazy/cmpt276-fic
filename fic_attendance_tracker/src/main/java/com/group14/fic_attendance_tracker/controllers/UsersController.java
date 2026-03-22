@@ -2,6 +2,12 @@ package com.group14.fic_attendance_tracker.controllers;
 
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import com.group14.fic_attendance_tracker.models.AttendanceRecord;
+import com.group14.fic_attendance_tracker.models.AttendanceRecordRepository;
+import com.group14.fic_attendance_tracker.models.AttendanceSummary;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,7 +34,9 @@ public class UsersController {
 
     @Autowired
     private ClassMapRepository mapRepo;
-
+    
+    @Autowired
+    private AttendanceRecordRepository attendanceRepo;
     // 
     @GetMapping("/")
     public String index() {
@@ -60,15 +68,35 @@ public class UsersController {
             return "redirect:/login";
         }
 
-        // Fetch all maps to display
-        // Iteration 1 will display all the maps to students
-        // Future Iteration will have logic to display only enrolled class
-        List<ClassMap> maps = mapRepo.findAll()
+        List<ClassMap> allMaps = mapRepo.findAll()
             .stream()
+            .sorted(Comparator.comparing(ClassMap::getLectureDate))
             .toList();
 
+        List<ClassMap> upcomingMaps = allMaps.stream()
+            .filter(map -> !map.getLectureDate().isBefore(LocalDate.now()))
+            .toList();
+
+        List<AttendanceRecord> records = attendanceRepo.findByStudentIdOrderBySelectedAtDesc(user.getUid());
+        List<AttendanceSummary> attendanceHistory = new ArrayList<>();
+
+        for (AttendanceRecord record : records) {
+            mapRepo.findById(record.getMapId()).ifPresent(map ->
+                attendanceHistory.add(
+                    new AttendanceSummary(
+                        map.getClassName(),
+                        map.getLectureDate(),
+                        record.getSeatIndex() + 1,
+                        record.isApproved()
+                    )
+                )
+            );
+        }
+
         model.addAttribute("user", user);
-        model.addAttribute("maps", maps);
+        model.addAttribute("maps", allMaps);
+        model.addAttribute("upcomingMaps", upcomingMaps);
+        model.addAttribute("attendanceHistory", attendanceHistory);
 
         return "users/studentView";
     }
