@@ -27,8 +27,10 @@ public class ClassMap {
     @Column(name="num_row")
     private int numRow;
 
-    @Column(name="seats", length = 3000)
-    private String seats;
+    @Column(name="active")
+    private Boolean active = true;
+    // Constructor for Map object
+    public ClassMap(){
 
     public ClassMap() {
     }
@@ -38,20 +40,7 @@ public class ClassMap {
         this.className = className;
         this.lectureDate = lectureDate;
         this.numRow = numRow;
-        this.seats = generateEmptySeats();
-    }
-
-    private String generateEmptySeats() {
-        int totalSeats = 48; // 4 rows × 4 desks × 3 seats
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < totalSeats; i++) {
-            sb.append("0");
-            if (i < totalSeats - 1) {
-                sb.append(",");
-            }
-        }
-        return sb.toString();
+        this.active = true;
     }
 
     public int getMapId(){
@@ -94,11 +83,11 @@ public class ClassMap {
         this.numRow = numRow;
     }
 
-    public String getSeats() {
-        return seats;
+    public Boolean getActive() {
+        return active;
     }
 
-    public void setSeats(String seats) {
-        this.seats = seats;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }
