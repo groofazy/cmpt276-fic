@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!btn) return;
 
                 btn.classList.remove('seat-available');
-                
-                // User is student 
+
+                // User is student
                 // Their own seat is green
                 // Other taken seat is gray
                 if (isStudent && s.studentId === userId) {
@@ -35,12 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.innerHTML = `${s.seatNumber}<br><span class="seat-name">${userName}</span>`;
                     hasSavedSeat = true;
 
-                // User is teacher 
-                // Other taken seat is blue and can hover    
+                // User is teacher
+                // Other taken seat is blue and can hover
                 } else if (isTeacher && s.studentId !== null) {
                     btn.classList.add('seat-taken-teacher');
                     btn.title = `Student ID: ${s.studentId}\nStudent Name: ${s.studentName || 'N/A'}`;
-                
+
                 } else {
                     btn.classList.add('seat-taken');
                     btn.disabled = true;
@@ -72,10 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 seat.classList.add('seat-available');
                 selectedSeat = null;
                 confirmBtn.style.display = 'none';
-                
+
                 // Show the instruction text again
                 if (instructionText) {
-                    instructionText.style.display = 'block'; 
+                    instructionText.style.display = 'block';
                 }
                 return;
             }
@@ -85,10 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
             seat.classList.add('seat-selected');
             selectedSeat = seat;
             confirmBtn.style.display = 'inline-block';
-            
+
             // Hide the instruction text
             if (instructionText) {
-                instructionText.style.display = 'none'; 
+                instructionText.style.display = 'none';
             }
         });
     });

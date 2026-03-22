@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -95,6 +96,7 @@ public class UsersController {
         List<ClassMap> maps = mapRepo.findAll()
             .stream()
             .filter(map -> map.getCreatorId() == user.getUid())
+            .filter(map -> map.getActive() != null && map.getActive() == true)
             .toList();
         model.addAttribute("maps", maps);
 
@@ -216,4 +218,136 @@ public class UsersController {
     public String displayAdmin() {
         return "users/adminView";
     }
+
+        // ===== ADMIN ENDPOINTS =====
+    
+    @GetMapping("/admin/dashboard")
+    public String adminDashboard(Model model) {
+        model.addAttribute("students", List.of());
+        model.addAttribute("professors", List.of());
+        model.addAttribute("classrooms", List.of());
+        model.addAttribute("attendanceReports", List.of());
+        return "users/adminView";
+    }
+    
+    @GetMapping("/admin/students")
+    public String listStudents(Model model) {
+        model.addAttribute("students", List.of());
+        return "users/adminView";
+    }
+    
+    @GetMapping("/admin/students/add")
+    public String showAddStudentForm() {
+        return "users/adminView";
+    }
+    
+    @PostMapping("/admin/students/add")
+    public String addStudent(@RequestParam Map<String, String> formData) {
+        return "redirect:/admin/students";
+    }
+    
+    @GetMapping("/admin/students/edit/{id}")
+    public String showEditStudentForm(@PathVariable Long id, Model model) {
+        model.addAttribute("students", List.of());
+        return "users/adminView";
+    }
+    
+    @PostMapping("/admin/students/edit/{id}")
+    public String editStudent(@PathVariable Long id, @RequestParam Map<String, String> formData) {
+        return "redirect:/admin/students";
+    }
+    
+    @PostMapping("/admin/students/delete/{id}")
+    public String deleteStudent(@PathVariable Long id) {
+        return "redirect:/admin/students";
+    }
+    
+    @GetMapping("/admin/professors")
+    public String listProfessors(Model model) {
+        model.addAttribute("professors", List.of());
+        return "users/adminView";
+    }
+    
+    @GetMapping("/admin/professors/add")
+    public String showAddProfessorForm() {
+        return "users/adminView";
+    }
+    
+    @PostMapping("/admin/professors/add")
+    public String addProfessor(@RequestParam Map<String, String> formData) {
+        return "redirect:/admin/professors";
+    }
+    
+    @GetMapping("/admin/professors/edit/{id}")
+    public String showEditProfessorForm(@PathVariable Long id, Model model) {
+        model.addAttribute("professors", List.of());
+        return "users/adminView";
+    }
+    
+    @PostMapping("/admin/professors/edit/{id}")
+    public String editProfessor(@PathVariable Long id, @RequestParam Map<String, String> formData) {
+        return "redirect:/admin/professors";
+    }
+    
+    @PostMapping("/admin/professors/delete/{id}")
+    public String deleteProfessor(@PathVariable Long id) {
+        return "redirect:/admin/professors";
+    }
+
+    @GetMapping("/admin/classrooms")
+    public String listClassrooms(Model model) {
+        return "redirect:/users/teacher";
+    }
+    
+    @GetMapping("/admin/classrooms/add")
+    public String showAddClassroomForm() {
+        return "redirect:/users/teacher";
+    }
+    
+    @PostMapping("/admin/classrooms/add")
+    public String addClassroom(@RequestParam Map<String, String> formData) {
+        return "redirect:/users/teacher";
+    }
+    
+    @GetMapping("/admin/classrooms/edit/{id}")
+    public String showEditClassroomForm(@PathVariable Long id, Model model) {
+        return "redirect:/users/teacher";
+    }
+    
+    @PostMapping("/admin/classrooms/edit/{id}")
+    public String editClassroom(@PathVariable Long id, @RequestParam Map<String, String> formData) {
+        return "redirect:/users/teacher";
+    }
+    
+    @PostMapping("/admin/classrooms/delete/{id}")
+    public String deleteClassroom(@PathVariable Long id) {
+        return "redirect:/users/teacher";
+    }
+
+     
+    @GetMapping("/admin/reports")
+    public String viewReports(Model model,
+                             @RequestParam(required = false) String classroom,
+                             @RequestParam(required = false) String date,
+                             @RequestParam(required = false) String professor) {
+        model.addAttribute("attendanceReports", List.of());
+        model.addAttribute("classrooms", List.of());
+        model.addAttribute("professors", List.of());
+        return "users/adminView";
+    }
+    
+    @GetMapping("/admin/reports/export")
+    public void exportReports(HttpServletResponse response,
+                             @RequestParam(required = false) String classroom,
+                             @RequestParam(required = false) String date,
+                             @RequestParam(required = false) String professor) {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"attendance_report.csv\"");
+    }
+    
+    @GetMapping("/admin/settings")
+    public String adminSettings() {
+        return "users/adminView";
+    }
+    
 }

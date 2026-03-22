@@ -1,6 +1,7 @@
 # Group 14 
 
 ## Name of Web Application
+AttendEase
 
 ## Do we have a clear understanding of the problem?
 
