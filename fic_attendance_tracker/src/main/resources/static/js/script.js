@@ -1,11 +1,39 @@
-// Handle clicked seat
-// Iteration 1 only change the color when seat is clicked
-// Future Iteration will have the logic with selected seat
 document.addEventListener('DOMContentLoaded', () => {
     const seats = document.querySelectorAll('.seat');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const statusMsg = document.getElementById('statusMsg');
+    let selectedSeat = null;
+
     seats.forEach(seat => {
         seat.addEventListener('click', function() {
-            this.classList.toggle('selected');
+            seats.forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedSeat = this;
+
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+            }
+
+            if (statusMsg) {
+                statusMsg.innerHTML = "";
+            }
         });
     });
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', () => {
+            if (selectedSeat && statusMsg) {
+                const row = selectedSeat.dataset.row;
+                const desk = selectedSeat.dataset.desk;
+                const seatNum = selectedSeat.dataset.seat;
+
+                statusMsg.innerHTML = `
+                    <div class="alert alert-success">
+                        Attendance confirmed ✅<br>
+                        Row ${row}, Desk ${desk}, Seat ${seatNum}
+                    </div>
+                `;
+            }
+        });
+    }
 });

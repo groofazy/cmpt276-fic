@@ -3,53 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student View</title>
+    <title>Student Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <main class="container py-5">
+    <main class="container-fluid py-4">
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="mb-0">Student Dashboard</h1>
-                        <a href="/logout" class="btn btn-danger">Logout</a>
-                    </div>
+            <div class="col-md-8 col-lg-7">
+                <h1>STUDENT DASHBOARD</h1>
 
-                    <h3 class="mb-3">Welcome, <span th:text="${user.name}">Student</span>!</h3>
-                    <p class="text-muted">You are successfully logged into the FIC Attendance Tracker.</p>
+                <div class="mb-3">
+                    <a th:href="@{/logout}" class="btn btn-outline-danger">Logout</a>
+                </div>
 
-                    <hr>
+                <div class="dashboard-section">
+                    <h3>Welcome, <span th:text="${user.name}">Student</span></h3>
+                    <p class="mb-0">You are successfully logged into the FIC Attendance Tracker.</p>
+                </div>
 
-                    <h4 class="mb-3">Account Information</h4>
+                <div class="dashboard-section">
+                    <h4>Account Information</h4>
+                    <p><strong>User ID:</strong> <span th:text="${user.uid}">1</span></p>
+                    <p><strong>Username:</strong> <span th:text="${user.name}">student_name</span></p>
+                    <p class="mb-0"><strong>Role:</strong> <span th:text="${user.role}">STUDENT</span></p>
+                </div>
 
-                    <div class="mb-2">
-                        <strong>User ID:</strong>
-                        <span th:text="${user.uid}">1</span>
-                    </div>
+                <div class="dashboard-section">
+                    <h4>Available Classes</h4>
 
-                    <div class="mb-2">
-                        <strong>Username:</strong>
-                        <span th:text="${user.name}">student_name</span>
-                    </div>
-
-                    <div class="mb-2">
-                        <strong>Role:</strong>
-                        <span th:text="${user.role}">STUDENT</span>
-                    </div>
-
-                    <h4 class="mb-3">Available Classroom</h4>
-                    <div style="display: flex; flex-direction: column; gap: 10px">
+                    <div th:if="${maps != null and maps.size() > 0}">
                         <div th:each="map : ${maps}">
-                            <a th:href="@{/maps/view/{id}(id=${map.mapId})}">
-                                <button class="btn btn-btn btn-primary" type="button" style="cursor: pointer; padding: 8px;">
-                                    <span th:text="${map.className}">Class Name</span><br>
-                                    <span th:text="${map.lectureDate}">Lecture Date</span>
-                                </button>
+                            <a th:href="@{/maps/view/{id}(id=${map.mapId})}" class="class-link">
+                                <strong th:text="${map.className}">Class Name</strong>
+                                <span th:text="${map.lectureDate}">Lecture Date</span>
                             </a>
                         </div>
                     </div>
+
+                    <div th:if="${maps == null or maps.size() == 0}">
+                        <p class="mb-0">No classroom maps are available right now.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-section">
+                    <h4>Quick Actions</h4>
+                    <a th:href="@{/logout}" class="btn btn-outline-secondary">End Session</a>
                 </div>
             </div>
         </div>
