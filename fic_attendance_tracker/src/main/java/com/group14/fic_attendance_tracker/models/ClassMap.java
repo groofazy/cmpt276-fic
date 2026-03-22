@@ -29,9 +29,8 @@ public class ClassMap {
 
     @Column(name="active")
     private Boolean active = true;
+    
     // Constructor for Map object
-    public ClassMap(){
-
     public ClassMap() {
     }
 
