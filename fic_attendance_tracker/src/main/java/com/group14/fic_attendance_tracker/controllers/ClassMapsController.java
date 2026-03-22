@@ -70,6 +70,7 @@ public class ClassMapsController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
 
             model.addAttribute("classMap", classMap);
+            model.addAttribute("sessionUser", user);
             return "maps/mapView";
         }
     }
