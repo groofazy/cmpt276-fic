@@ -32,7 +32,9 @@ public class ClassMap {
     // Constructor for Map object
     public ClassMap(){
 
+    public ClassMap() {
     }
+
     public ClassMap(int creatorId, String className, LocalDate lectureDate, int numRow){
         this.creatorId = creatorId;
         this.className = className;
@@ -41,10 +43,10 @@ public class ClassMap {
         this.active = true;
     }
 
-    // Getter and setter for each variable
     public int getMapId(){
         return mapId;
     }
+
     public void setMapId(int mapId){
         this.mapId = mapId;
     }
@@ -52,6 +54,7 @@ public class ClassMap {
     public int getCreatorId(){
         return creatorId;
     }
+
     public void setCreatorId(int creatorId){
         this.creatorId = creatorId;
     }
@@ -59,6 +62,7 @@ public class ClassMap {
     public String getClassName(){
         return className;
     }
+
     public void setClassName(String className){
         this.className = className;
     }
@@ -66,6 +70,7 @@ public class ClassMap {
     public LocalDate getLectureDate(){
         return lectureDate;
     }
+
     public void setLectureDate(LocalDate lectureDate){
         this.lectureDate = lectureDate;
     }
@@ -73,6 +78,7 @@ public class ClassMap {
     public int getNumRow(){
         return numRow;
     }
+
     public void setNumRow(int numRow){
         this.numRow = numRow;
     }
