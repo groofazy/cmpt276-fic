@@ -2,6 +2,622 @@ body {
     background-color: dimgray;
 }
 
+/* ==================== ADMIN DASHBOARD VIEW STYLING ==================== */
+
+/* ==================== GENERAL STYLES ==================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+/* ==================== WRAPPER & LAYOUT ==================== */
+
+.wrapper {
+    display: flex;
+    height: 100vh;
+}
+
+/* ==================== SIDEBAR NAVIGATION ==================== */
+
+.sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 0;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    text-align: center;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header h3 {
+    font-size: 1.4rem;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.sidebar-nav {
+    list-style: none;
+}
+
+.sidebar-nav li {
+    margin: 0;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 4px solid transparent;
+}
+
+.sidebar-nav a:hover {
+    background-color: rgba(102, 126, 234, 0.2);
+    border-left-color: #667eea;
+    padding-left: 25px;
+    color: #667eea;
+}
+
+.sidebar-nav a.active {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.3) 0%, transparent 100%);
+    border-left-color: #667eea;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.sidebar-nav i {
+    margin-right: 15px;
+    width: 20px;
+    font-size: 1.1rem;
+}
+
+.sidebar-nav span {
+    font-size: 0.95rem;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+
+.main-content {
+    margin-left: 260px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f5f7fa;
+}
+
+/* ==================== TOP NAVIGATION BAR ==================== */
+
+.topbar {
+    background: white;
+    padding: 20px 35px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.topbar h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.user-menu i {
+    cursor: pointer;
+    transition: color 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.user-menu i:hover {
+    color: #667eea;
+}
+
+/* ==================== CONTENT AREA ==================== */
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 35px;
+    background: #f5f7fa;
+}
+
+/* ==================== SECTIONS ==================== */
+
+.section {
+    background: white;
+    border-radius: 10px;
+    padding: 28px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.section:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 18px;
+    border-bottom: 3px solid #f0f0f0;
+}
+
+.section-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.35rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-header h3 i {
+    color: #667eea;
+    font-size: 1.4rem;
+}
+
+/* ==================== BUTTONS ==================== */
+
+.btn-add {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-add:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-add:active {
+    transform: translateY(-1px);
+}
+
+.btn-add i {
+    font-size: 0.95rem;
+}
+
+.btn-sm {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-edit {
+    background-color: #27ae60;
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #229954;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+    text-decoration: none;
+    color: white;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+}
+
+.btn-export {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-export:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.5);
+    color: white;
+    text-decoration: none;
+}
+
+/* ==================== TABLES ==================== */
+
+.table {
+    margin-bottom: 0;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table thead th {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%);
+    border-bottom: 2px solid #bdc3c7;
+    font-weight: 700;
+    color: #2c3e50;
+    padding: 18px 15px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody td {
+    padding: 16px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #ecf0f1;
+    color: #34495e;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+    box-shadow: inset 0 0 10px rgba(102, 126, 234, 0.1);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* ==================== ACTION BUTTONS ==================== */
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ==================== FILTER SECTION ==================== */
+
+.filter-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border-left: 4px solid #667eea;
+}
+
+.filter-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.filter-group select,
+.filter-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #bdc3c7;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #34495e;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 8px rgba(102, 126, 234, 0.3);
+    background-color: white;
+}
+
+/* ==================== EMPTY STATE ==================== */
+
+.empty-state {
+    text-align: center;
+    padding: 60px 40px;
+    color: #7f8c8d;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.4;
+    color: #95a5a6;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.empty-state a {
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.empty-state a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* ==================== BADGES ==================== */
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bg-success {
+    background-color: #27ae60 !important;
+    color: white;
+}
+
+.bg-warning {
+    background-color: #f39c12 !important;
+    color: white;
+}
+
+/* ==================== SCROLLBAR STYLING ==================== */
+
+.content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background: #bdc3c7;
+    border-radius: 4px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 230px;
+    }
+    
+    .main-content {
+        margin-left: 230px;
+    }
+    
+    .content {
+        padding: 25px;
+    }
+    
+    .section {
+        padding: 20px;
+    }
+    
+    .filter-row {
+        gap: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .topbar {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .topbar h2 {
+        font-size: 1.4rem;
+    }
+    
+    .content {
+        padding: 15px;
+    }
+    
+    .section {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .filter-row {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-sm {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .table {
+        font-size: 0.85rem;
+    }
+    
+    .table thead th,
+    .table tbody td {
+        padding: 10px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .topbar h2 {
+        font-size: 1.2rem;
+    }
+    
+    .section-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .user-menu {
+        gap: 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ==================== ANIMATIONS ==================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+
+.text-muted {
+    color: #7f8c8d;
+}
+
+.text-center {
+    text-align: center;
+}
+
 .card {
     border-radius: 12px;
 }
