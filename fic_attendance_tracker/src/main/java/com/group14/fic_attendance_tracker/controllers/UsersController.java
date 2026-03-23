@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
+
+import java.util.Set;
 import com.group14.fic_attendance_tracker.models.AttendanceRecord;
 import com.group14.fic_attendance_tracker.models.AttendanceRecordRepository;
 import com.group14.fic_attendance_tracker.models.AttendanceSummary;
@@ -25,6 +26,8 @@ import com.group14.fic_attendance_tracker.models.User;
 import com.group14.fic_attendance_tracker.models.UserRepository;
 import com.group14.fic_attendance_tracker.models.ClassMap;
 import com.group14.fic_attendance_tracker.models.ClassMapRepository;
+import com.group14.fic_attendance_tracker.models.Seat;
+import com.group14.fic_attendance_tracker.models.SeatRepository;
 
 
 @Controller
@@ -38,6 +41,9 @@ public class UsersController {
     
     @Autowired
     private AttendanceRecordRepository attendanceRepo;
+
+    @Autowired
+    private SeatRepository seatRepo;
     // 
     @GetMapping("/")
     public String index() {
@@ -71,7 +77,7 @@ public class UsersController {
 
         List<ClassMap> allMaps = mapRepo.findAll()
             .stream()
-            .sorted(Comparator.comparing(ClassMap::getLectureDate))
+            .filter(map->map.getActive() != null && map.getActive())
             .toList();
 
         List<ClassMap> upcomingMaps = allMaps.stream()
@@ -127,6 +133,30 @@ public class UsersController {
             .filter(map -> map.getActive() != null && map.getActive() == true)
             .toList();
         model.addAttribute("maps", maps);
+
+        // Get active map
+        ClassMap activeMap = maps.stream()
+            .filter(map -> map.getActive() != null && map.getActive())
+            .findFirst()
+            .orElse(null);
+        model.addAttribute("activeMap", activeMap);
+
+        if (activeMap != null) {
+        List<Seat> seatRecords = seatRepo.findByMapId(activeMap.getMapId());
+
+        Set<Integer> presentIds = seatRecords.stream()
+          .map(Seat::getStudentId)
+          .filter(id -> id != null)
+          .collect(java.util.stream.Collectors.toSet());
+
+        List<User> presentStudents = students.stream()
+          .filter(student -> presentIds.contains(student.getUid()))
+          .toList();
+
+        model.addAttribute("presentStudents", presentStudents);
+}
+
+       
 
         return "users/teacherView";
     }

@@ -28,14 +28,7 @@
               <button type="submit" style="cursor: pointer;"> Start Attendance - Create New Class </button>
             </form>
 
-            <!--<form th:action="@{/attendance/end}" method="post">
-              <button type="submit" style="cursor: pointer;"> End Attendance - Close Current Class </button>
-            </form>-->
-
-            <a th:href="@{/users/layout}">
-              <button style="cursor: pointer;">Change Seating Layout</button>
-            </a>
-
+            
         </div>
     </div>
 
@@ -61,6 +54,13 @@
             </button>
         </form>
 
+        <form th:action="@{/maps/delete/{id}(id=${map.mapId})}" method="post"
+          onsubmit="return confirm('Are you sure you want to delete this class? This action cannot be undone.')">
+          <button style="margin-top:5px; width:100%; background-color:gray; color:white;">
+             Delete Class
+          </button>
+        </form>
+
     </div>
     </div>
     </div>
@@ -74,10 +74,15 @@
             <th>Attendance Status</th>
          </tr>
 
-         <!-- <tr th:each="student : ${students}">
-            <td th:text="${student.name}">  </td>
-            <td th:text="${student.attendanceStatus}">  </td>
-         </tr> -->
+         <tr th:if="${presentStudents == null || #lists.isEmpty(presentStudents)}">
+         <td colspan="2">No students marked present</td>
+         </tr>
+
+         <tr th:each="student : ${presentStudents}">
+         
+         <td th:text="${student.name}"></td>
+         <td><span style="color: green; font-weight: bold;">Present</span></td>
+         </tr>
 
 
         </table>

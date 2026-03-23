@@ -27,6 +27,9 @@ public class ClassMap {
     @Column(name="num_row")
     private int numRow;
 
+    @Column(name = "seats")
+    private String seats;
+
     @Column(name="active")
     private Boolean active = true;
     
@@ -80,6 +83,14 @@ public class ClassMap {
 
     public void setNumRow(int numRow){
         this.numRow = numRow;
+    }
+
+    public String getSeats() {
+        return seats;
+    }
+
+    public void setSeats(String seats) {
+        this.seats = seats;
     }
 
     public Boolean getActive() {
