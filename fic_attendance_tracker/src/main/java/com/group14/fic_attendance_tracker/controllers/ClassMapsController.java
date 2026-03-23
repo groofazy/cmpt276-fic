@@ -22,7 +22,6 @@ import com.group14.fic_attendance_tracker.models.SeatRepository;
 public class ClassMapsController {
 
     private static final int TOTAL_SEATS = 48;
-
     @Autowired
     private ClassMapRepository mapRepo;
 
@@ -66,13 +65,12 @@ public class ClassMapsController {
 
         ClassMap classMap = mapRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
-
         ensureSeatsInitialized(classMap);
-
         String[] seatOwners = classMap.getSeats().split(",");
         String[] seatClasses = buildSeatClasses(seatOwners, user.getUid());
 
         model.addAttribute("classMap", classMap);
+
         model.addAttribute("seatClasses", seatClasses);
         model.addAttribute("currentUserId", user.getUid());
 
@@ -201,4 +199,3 @@ public class ClassMapsController {
       return "redirect:/users/teacher";
     }
 }
-
