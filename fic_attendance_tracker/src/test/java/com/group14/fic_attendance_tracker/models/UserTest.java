@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
-
 public class UserTest {
 
     @Test
@@ -18,7 +16,7 @@ public class UserTest {
 
         assertEquals(name, user.getName());
         assertEquals(password, user.getPassword());
-        assertEquals(role, user.getPassword());
+        assertEquals(role, user.getRole());
     }
 
     @Test
@@ -35,7 +33,7 @@ public class UserTest {
     void testSetPassword() {
         User user = new User();
         String password = "test";
-        
+    
         user.setPassword(password);
 
         assertEquals(password, user.getPassword());
@@ -54,10 +52,34 @@ public class UserTest {
     @Test
     void testSetUid() {
         User user = new User();
-        String name = "test";
+        int uid = 1;
         
-        user.setName(name);
+        user.setUid(uid);
 
-        assertEquals(name, user.getName());
+        assertEquals(uid, user.getUid());
+    }
+
+    @Test
+    void testSetEmptyName() {
+        try {
+            User user = new User();
+            String name = "";
+            user.setName(name);
+            fail();
+        } catch (IllegalArgumentException e) {
+
+        }
+    }
+
+    @Test
+    void testSetEmptyPassword() {
+        try {
+            User user = new User();
+            String password = "";
+            user.setPassword(password);
+            fail();
+        } catch (IllegalArgumentException e) {
+
+        }
     }
 }
