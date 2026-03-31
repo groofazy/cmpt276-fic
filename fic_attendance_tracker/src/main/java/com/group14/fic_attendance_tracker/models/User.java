@@ -44,7 +44,7 @@ public class User implements Serializable {
         return password;
     }
     public void setPassword(String password) {
-        if (password == null || name.isEmpty()) {
+        if (password == null || password.isEmpty()) {
             throw new IllegalArgumentException("Password cannot be empty or null");
         }
         this.password = password;
