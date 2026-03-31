@@ -2,9 +2,11 @@ package com.group14.fic_attendance_tracker.controllers;
 
 import java.util.List;
 import java.util.Map;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import java.util.Set;
 import com.group14.fic_attendance_tracker.models.AttendanceRecord;
 import com.group14.fic_attendance_tracker.models.AttendanceRecordRepository;
@@ -593,24 +595,181 @@ public String deleteClassroom(@PathVariable int id, HttpSession session) {
 }
      
     @GetMapping("/admin/reports")
-    public String viewReports(Model model,
-                             @RequestParam(required = false) String classroom,
-                             @RequestParam(required = false) String date,
-                             @RequestParam(required = false) String professor) {
-        model.addAttribute("attendanceReports", List.of());
-        model.addAttribute("classrooms", List.of());
-        model.addAttribute("professors", List.of());
-        return "users/adminView";
+public String viewReports(Model model, HttpSession session,
+                         @RequestParam(required = false) String classroom,
+                         @RequestParam(required = false) String date,
+                         @RequestParam(required = false) String professor) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
     }
     
-    @GetMapping("/admin/reports/export")
-    public void exportReports(HttpServletResponse response,
-                             @RequestParam(required = false) String classroom,
-                             @RequestParam(required = false) String date,
-                             @RequestParam(required = false) String professor) {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"attendance_report.csv\"");
+    // Fetch all attendance records
+    List<AttendanceRecord> records = attendanceRepo.findAll();
+    
+    // Create aggregated report data
+    List<Map<String, Object>> reportData = new ArrayList<>();
+    Map<String, Map<String, Object>> aggregated = new HashMap<>();
+    
+    for (AttendanceRecord record : records) {
+        ClassMap classMap = mapRepo.findById(record.getMapId()).orElse(null);
+        User professor_user = userRepo.findById(classMap.getCreatorId()).orElse(null);
+        
+        if (classMap != null && professor_user != null) {
+            String key = classMap.getClassName() + "_" + classMap.getLectureDate() + "_" + professor_user.getName();
+            
+            if (!aggregated.containsKey(key)) {
+                Map<String, Object> report = new HashMap<>();
+                report.put("className", classMap.getClassName());
+                report.put("lectureDate", classMap.getLectureDate());
+                report.put("professor", professor_user.getName());
+                report.put("totalStudents", 0);
+                report.put("presentStudents", 0);
+                report.put("attendanceRate", 0.0);
+                aggregated.put(key, report);
+            }
+            
+            Map<String, Object> report = aggregated.get(key);
+            int total = (int) report.get("totalStudents") + 1;
+            int present = (int) report.get("presentStudents") + (record.isApproved() ? 1 : 0);
+            double rate = total > 0 ? (double) present / total * 100 : 0;
+            
+            report.put("totalStudents", total);
+            report.put("presentStudents", present);
+            report.put("attendanceRate", Math.round(rate * 100.0) / 100.0);
+        }
     }
+    
+    reportData.addAll(aggregated.values());
+    
+    // Apply filters if provided
+    if (classroom != null && !classroom.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("className").toString().equalsIgnoreCase(classroom))
+            .toList();
+    }
+    if (professor != null && !professor.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("professor").toString().equalsIgnoreCase(professor))
+            .toList();
+    }
+    if (date != null && !date.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("lectureDate").toString().equals(date))
+            .toList();
+    }
+    
+    // Get unique values for filter dropdowns
+    List<String> classrooms = mapRepo.findAll().stream()
+        .map(ClassMap::getClassName)
+        .distinct()
+        .toList();
+    
+    List<String> professors = userRepo.findAll().stream()
+        .filter(u -> u.getRole() == User.RoleType.TEACHER)
+        .map(User::getName)
+        .distinct()
+        .toList();
+    
+    List<String> dates = mapRepo.findAll().stream()
+        .map(m -> m.getLectureDate().toString())
+        .distinct()
+        .toList();
+    
+    model.addAttribute("attendanceReports", reportData);
+    model.addAttribute("classrooms", classrooms);
+    model.addAttribute("professors", professors);
+    model.addAttribute("dates", dates);
+    model.addAttribute("user", user);
+    
+    return "users/adminView";
+}
+
+@GetMapping("/admin/reports/export")
+public void exportReports(HttpServletResponse response, HttpSession session,
+                         @RequestParam(required = false) String classroom,
+                         @RequestParam(required = false) String date,
+                         @RequestParam(required = false) String professor) throws IOException {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        response.sendRedirect("/login");
+        return;
+    }
+    
+    // Fetch and aggregate same as viewReports
+    List<AttendanceRecord> records = attendanceRepo.findAll();
+    List<Map<String, Object>> reportData = new ArrayList<>();
+    Map<String, Map<String, Object>> aggregated = new HashMap<>();
+    
+    for (AttendanceRecord record : records) {
+        ClassMap classMap = mapRepo.findById(record.getMapId()).orElse(null);
+        User professor_user = userRepo.findById(classMap.getCreatorId()).orElse(null);
+        
+        if (classMap != null && professor_user != null) {
+            String key = classMap.getClassName() + "_" + classMap.getLectureDate() + "_" + professor_user.getName();
+            
+            if (!aggregated.containsKey(key)) {
+                Map<String, Object> report = new HashMap<>();
+                report.put("className", classMap.getClassName());
+                report.put("lectureDate", classMap.getLectureDate());
+                report.put("professor", professor_user.getName());
+                report.put("totalStudents", 0);
+                report.put("presentStudents", 0);
+                report.put("attendanceRate", 0.0);
+                aggregated.put(key, report);
+            }
+            
+            Map<String, Object> report = aggregated.get(key);
+            int total = (int) report.get("totalStudents") + 1;
+            int present = (int) report.get("presentStudents") + (record.isApproved() ? 1 : 0);
+            double rate = total > 0 ? (double) present / total * 100 : 0;
+            
+            report.put("totalStudents", total);
+            report.put("presentStudents", present);
+            report.put("attendanceRate", Math.round(rate * 100.0) / 100.0);
+        }
+    }
+    
+    reportData.addAll(aggregated.values());
+    
+    // Apply filters
+    if (classroom != null && !classroom.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("className").toString().equalsIgnoreCase(classroom))
+            .toList();
+    }
+    if (professor != null && !professor.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("professor").toString().equalsIgnoreCase(professor))
+            .toList();
+    }
+    if (date != null && !date.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("lectureDate").toString().equals(date))
+            .toList();
+    }
+    
+    // Generate CSV
+    response.setContentType("text/csv");
+    response.setHeader("Content-Disposition", "attachment; filename=\"attendance_report.csv\"");
+    
+    try (PrintWriter writer = response.getWriter()) {
+        // Write header
+        writer.println("Class Name,Lecture Date,Professor,Total Students,Present Students,Attendance Rate (%)");
+        
+        // Write data rows
+        for (Map<String, Object> report : reportData) {
+            writer.printf("%s,%s,%s,%d,%d,%.2f%n",
+                report.get("className"),
+                report.get("lectureDate"),
+                report.get("professor"),
+                report.get("totalStudents"),
+                report.get("presentStudents"),
+                report.get("attendanceRate")
+            );
+        }
+    }
+}
     
     @GetMapping("/admin/settings")
     public String adminSettings() {
