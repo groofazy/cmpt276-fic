@@ -121,53 +121,49 @@
 </div>
 
                 <!-- Professor Management Section -->
-                <div class="section">
-                    <div class="section-header">
-                        <h3><i class="fas fa-chalkboard-user"></i> Professor Management</h3>
-                        <a th:href="@{/admin/professors/add}" class="btn-add">
-                            <i class="fas fa-plus"></i> Add Professor
-                        </a>
-                    </div>
+               <div class="section">
+    <div class="section-header">
+        <h3><i class="fas fa-chalkboard-user"></i> Professor Management</h3>
+        <a th:href="@{/admin/professors/add}" class="btn-add">
+            <i class="fas fa-plus"></i> Add Professor
+        </a>
+    </div>
 
-                    <!-- Professors Table -->
-                    <div th:if="${professors != null and professors.size() > 0}">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Prof ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Department</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="professor : ${professors}">
-                                    <td th:text="${professor.profId}"></td>
-                                    <td th:text="${professor.name}"></td>
-                                    <td th:text="${professor.email}"></td>
-                                    <td th:text="${professor.department}"></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a th:href="@{/admin/professors/edit/{id}(id=${professor.id})}" class="btn-sm btn-edit">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                            <form th:action="@{/admin/professors/delete/{id}(id=${professor.id})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
-                                                <button type="submit" class="btn-sm btn-delete">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div th:if="${professors == null or professors.size() == 0}" class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <p>No professors found. <a th:href="@{/admin/professors/add}">Add a new professor</a></p>
-                    </div>
-                </div>
+    <!-- Professors Table -->
+    <div th:if="${professors != null and professors.size() > 0}">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Prof ID</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="professor : ${professors}">
+                    <td th:text="${professor.uid}"></td>
+                    <td th:text="${professor.name}"></td>
+                    <td>
+                        <div class="action-buttons">
+                            <a th:href="@{/admin/professors/edit/{id}(id=${professor.uid})}" class="btn-sm btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <form th:action="@{/admin/professors/delete/{id}(id=${professor.uid})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="btn-sm btn-delete">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${professors == null or professors.size() == 0}" class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>No professors found. <a th:href="@{/admin/professors/add}">Add a new professor</a></p>
+    </div>
+</div>
 
                 <!-- Classroom Management Section -->
                 <div class="section">
