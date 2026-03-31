@@ -393,31 +393,102 @@ public String deleteStudent(@PathVariable int id, HttpSession session) {
     return "redirect:/admin/students";
 }
     
-    @GetMapping("/admin/professors/add")
-    public String showAddProfessorForm() {
-        return "users/adminView";
+    @GetMapping("/admin/professors")
+public String listProfessors(Model model, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
     }
     
-    @PostMapping("/admin/professors/add")
-    public String addProfessor(@RequestParam Map<String, String> formData) {
+    // Fetch all professors (users with TEACHER role)
+    List<User> professors = userRepo.findAll()
+        .stream()
+        .filter(u -> u.getRole() == User.RoleType.TEACHER)
+        .toList();
+    
+    model.addAttribute("professors", professors);
+    model.addAttribute("user", user);
+    return "users/adminView";
+}
+
+@GetMapping("/admin/professors/add")
+public String showAddProfessorForm(HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    model.addAttribute("user", user);
+    return "users/addProfessor";
+}
+
+@PostMapping("/admin/professors/add")
+public String addProfessor(@RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    String name = formData.get("name");
+    String password = formData.get("password");
+    
+    User newProfessor = new User(name, password, User.RoleType.TEACHER);
+    userRepo.save(newProfessor);
+    
+    return "redirect:/admin/professors";
+}
+
+@GetMapping("/admin/professors/edit/{id}")
+public String showEditProfessorForm(@PathVariable int id, HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    User professor = userRepo.findById(id).orElse(null);
+    if (professor == null || professor.getRole() != User.RoleType.TEACHER) {
         return "redirect:/admin/professors";
     }
     
-    @GetMapping("/admin/professors/edit/{id}")
-    public String showEditProfessorForm(@PathVariable Long id, Model model) {
-        model.addAttribute("professors", List.of());
-        return "users/adminView";
+    model.addAttribute("professor", professor);
+    model.addAttribute("user", user);
+    return "users/editProfessor";
+}
+
+@PostMapping("/admin/professors/edit/{id}")
+public String editProfessor(@PathVariable int id, @RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
     }
     
-    @PostMapping("/admin/professors/edit/{id}")
-    public String editProfessor(@PathVariable Long id, @RequestParam Map<String, String> formData) {
+    User professor = userRepo.findById(id).orElse(null);
+    if (professor == null || professor.getRole() != User.RoleType.TEACHER) {
         return "redirect:/admin/professors";
     }
     
-    @PostMapping("/admin/professors/delete/{id}")
-    public String deleteProfessor(@PathVariable Long id) {
-        return "redirect:/admin/professors";
+    professor.setName(formData.get("name"));
+    professor.setPassword(formData.get("password"));
+    
+    userRepo.save(professor);
+    
+    return "redirect:/admin/professors";
+}
+
+@PostMapping("/admin/professors/delete/{id}")
+public String deleteProfessor(@PathVariable int id, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
     }
+    
+    User professor = userRepo.findById(id).orElse(null);
+    if (professor != null && professor.getRole() == User.RoleType.TEACHER) {
+        userRepo.deleteById(id);
+    }
+    
+    return "redirect:/admin/professors";
+}
 
     @GetMapping("/admin/classrooms")
     public String listClassrooms(Model model) {
