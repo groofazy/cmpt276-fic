@@ -166,53 +166,56 @@
 </div>
 
                 <!-- Classroom Management Section -->
-                <div class="section">
-                    <div class="section-header">
-                        <h3><i class="fas fa-door-open"></i> Classroom Management</h3>
-                        <a th:href="@{/admin/classrooms/add}" class="btn-add">
-                            <i class="fas fa-plus"></i> Add Classroom
-                        </a>
-                    </div>
+               <div class="section">
+    <div class="section-header">
+        <h3><i class="fas fa-door-open"></i> Classroom Management</h3>
+        <a th:href="@{/admin/classrooms/add}" class="btn-add">
+            <i class="fas fa-plus"></i> Add Classroom
+        </a>
+    </div>
 
-                    <!-- Classrooms Table -->
-                    <div th:if="${classrooms != null and classrooms.size() > 0}">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Classroom ID</th>
-                                    <th>Name</th>
-                                    <th>Building</th>
-                                    <th>Capacity</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="classroom : ${classrooms}">
-                                    <td th:text="${classroom.classroomId}"></td>
-                                    <td th:text="${classroom.name}"></td>
-                                    <td th:text="${classroom.building}"></td>
-                                    <td th:text="${classroom.capacity}"></td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a th:href="@{/admin/classrooms/edit/{id}(id=${classroom.id})}" class="btn-sm btn-edit">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                            <form th:action="@{/admin/classrooms/delete/{id}(id=${classroom.id})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
-                                                <button type="submit" class="btn-sm btn-delete">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div th:if="${classrooms == null or classrooms.size() == 0}" class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <p>No classrooms found. <a th:href="@{/admin/classrooms/add}">Add a new classroom</a></p>
-                    </div>
-                </div>
+    <!-- Classrooms Table -->
+    <div th:if="${classrooms != null and classrooms.size() > 0}">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Classroom ID</th>
+                    <th>Class Name</th>
+                    <th>Lecture Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="classroom : ${classrooms}">
+                    <td th:text="${classroom.mapId}"></td>
+                    <td th:text="${classroom.className}"></td>
+                    <td th:text="${#temporals.format(classroom.lectureDate, 'MMM dd, yyyy')}"></td>
+                    <td>
+                        <span th:if="${classroom.active}" class="badge bg-success">Active</span>
+                        <span th:if="${!classroom.active}" class="badge bg-secondary">Inactive</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a th:href="@{/admin/classrooms/edit/{id}(id=${classroom.mapId})}" class="btn-sm btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <form th:action="@{/admin/classrooms/delete/{id}(id=${classroom.mapId})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="btn-sm btn-delete">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${classrooms == null or classrooms.size() == 0}" class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>No classrooms found. <a th:href="@{/admin/classrooms/add}">Add a new classroom</a></p>
+    </div>
+</div>
 
                 <!-- Attendance Reports Section -->
                 <div class="section">
