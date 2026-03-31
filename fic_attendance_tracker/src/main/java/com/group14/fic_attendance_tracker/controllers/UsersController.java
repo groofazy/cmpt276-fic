@@ -490,36 +490,107 @@ public String deleteProfessor(@PathVariable int id, HttpSession session) {
     return "redirect:/admin/professors";
 }
 
-    @GetMapping("/admin/classrooms")
-    public String listClassrooms(Model model) {
-        return "redirect:/users/teacher";
+   @GetMapping("/admin/classrooms")
+public String listClassrooms(Model model, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
     }
     
-    @GetMapping("/admin/classrooms/add")
-    public String showAddClassroomForm() {
-        return "redirect:/users/teacher";
-    }
+    // Fetch all classrooms (not filtered by teacher)
+    List<ClassMap> classrooms = mapRepo.findAll();
     
-    @PostMapping("/admin/classrooms/add")
-    public String addClassroom(@RequestParam Map<String, String> formData) {
-        return "redirect:/users/teacher";
-    }
-    
-    @GetMapping("/admin/classrooms/edit/{id}")
-    public String showEditClassroomForm(@PathVariable Long id, Model model) {
-        return "redirect:/users/teacher";
-    }
-    
-    @PostMapping("/admin/classrooms/edit/{id}")
-    public String editClassroom(@PathVariable Long id, @RequestParam Map<String, String> formData) {
-        return "redirect:/users/teacher";
-    }
-    
-    @PostMapping("/admin/classrooms/delete/{id}")
-    public String deleteClassroom(@PathVariable Long id) {
-        return "redirect:/users/teacher";
-    }
+    model.addAttribute("classrooms", classrooms);
+    model.addAttribute("user", user);
+    return "users/adminView";
+}
 
+@GetMapping("/admin/classrooms/add")
+public String showAddClassroomForm(HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    model.addAttribute("user", user);
+    return "users/addClassroom";
+}
+
+@PostMapping("/admin/classrooms/add")
+public String addClassroom(@RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    String className = formData.get("className");
+    String lectureDate = formData.get("lectureDate");
+    int numRow = Integer.parseInt(formData.get("numRow"));
+    
+    ClassMap newClassroom = new ClassMap();
+    newClassroom.setClassName(className);
+    newClassroom.setLectureDate(LocalDate.parse(lectureDate));
+    newClassroom.setNumRow(numRow);
+    newClassroom.setCreatorId(user.getUid());
+    newClassroom.setActive(true);
+    
+    mapRepo.save(newClassroom);
+    
+    return "redirect:/admin/classrooms";
+}
+
+@GetMapping("/admin/classrooms/edit/{id}")
+public String showEditClassroomForm(@PathVariable int id, HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    ClassMap classroom = mapRepo.findById(id).orElse(null);
+    if (classroom == null) {
+        return "redirect:/admin/classrooms";
+    }
+    
+    model.addAttribute("classroom", classroom);
+    model.addAttribute("user", user);
+    return "users/editClassroom";
+}
+
+@PostMapping("/admin/classrooms/edit/{id}")
+public String editClassroom(@PathVariable int id, @RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    ClassMap classroom = mapRepo.findById(id).orElse(null);
+    if (classroom == null) {
+        return "redirect:/admin/classrooms";
+    }
+    
+    classroom.setClassName(formData.get("className"));
+    classroom.setLectureDate(LocalDate.parse(formData.get("lectureDate")));
+    classroom.setNumRow(Integer.parseInt(formData.get("numRow")));
+    
+    mapRepo.save(classroom);
+    
+    return "redirect:/admin/classrooms";
+}
+
+@PostMapping("/admin/classrooms/delete/{id}")
+public String deleteClassroom(@PathVariable int id, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    ClassMap classroom = mapRepo.findById(id).orElse(null);
+    if (classroom != null) {
+        mapRepo.deleteById(id);
+    }
+    
+    return "redirect:/admin/classrooms";
+}
      
     @GetMapping("/admin/reports")
     public String viewReports(Model model,
