@@ -667,10 +667,12 @@ public String viewReports(Model model, HttpSession session,
     Map<String, Map<String, Object>> aggregated = new HashMap<>();
     
     for (AttendanceRecord record : records) {
-        ClassMap classMap = mapRepo.findById(record.getMapId()).orElse(null);
+    ClassMap classMap = mapRepo.findById(record.getMapId()).orElse(null);
+    
+    if (classMap != null) {  // CHECK FIRST
         User professor_user = userRepo.findById(classMap.getCreatorId()).orElse(null);
         
-        if (classMap != null && professor_user != null) {
+        if (professor_user != null) {
             String key = classMap.getClassName() + "_" + classMap.getLectureDate() + "_" + professor_user.getName();
             
             if (!aggregated.containsKey(key)) {
@@ -694,6 +696,7 @@ public String viewReports(Model model, HttpSession session,
             report.put("attendanceRate", Math.round(rate * 100.0) / 100.0);
         }
     }
+}
     
     reportData.addAll(aggregated.values());
     
@@ -757,10 +760,12 @@ public void exportReports(HttpServletResponse response, HttpSession session,
     Map<String, Map<String, Object>> aggregated = new HashMap<>();
     
     for (AttendanceRecord record : records) {
-        ClassMap classMap = mapRepo.findById(record.getMapId()).orElse(null);
+    ClassMap classMap = mapRepo.findById(record.getMapId()).orElse(null);
+    
+    if (classMap != null) {  // CHECK FIRST
         User professor_user = userRepo.findById(classMap.getCreatorId()).orElse(null);
         
-        if (classMap != null && professor_user != null) {
+        if (professor_user != null) {
             String key = classMap.getClassName() + "_" + classMap.getLectureDate() + "_" + professor_user.getName();
             
             if (!aggregated.containsKey(key)) {
@@ -784,6 +789,7 @@ public void exportReports(HttpServletResponse response, HttpSession session,
             report.put("attendanceRate", Math.round(rate * 100.0) / 100.0);
         }
     }
+}
     
     reportData.addAll(aggregated.values());
     
