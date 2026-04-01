@@ -291,12 +291,6 @@ public class UsersController {
     }
     
     
-    
-    @GetMapping("/admin/professors")
-    public String listProfessors(Model model) {
-        model.addAttribute("professors", List.of());
-        return "users/adminView";
-    }
 
     @GetMapping("/admin/students")
 public String listStudents(Model model, HttpSession session) {
