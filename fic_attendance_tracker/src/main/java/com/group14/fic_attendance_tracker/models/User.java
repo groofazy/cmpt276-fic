@@ -35,12 +35,18 @@ public class User implements Serializable {
         return name;
     }
     public void setName(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty or null");
+        }
         this.name = name;
     }
     public String getPassword() {
         return password;
     }
     public void setPassword(String password) {
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty or null");
+        }
         this.password = password;
     }
     public int getUid() {
