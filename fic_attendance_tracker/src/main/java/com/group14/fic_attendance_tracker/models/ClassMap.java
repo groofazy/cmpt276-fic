@@ -32,6 +32,14 @@ public class ClassMap {
 
     @Column(name="active")
     private Boolean active = true;
+
+    @Column(name="passcode")
+    private String passcode;
+
+    @Column(name="attendance_open")
+    private Boolean attendanceOpen = false;
+
+
     
     // Constructor for Map object
     public ClassMap() {
@@ -100,4 +108,22 @@ public class ClassMap {
     public void setActive(Boolean active) {
         this.active = active;
     }
+
+    public String getPasscode() {
+        return passcode;
+    }
+
+    public void setPasscode(String passcode) {
+        this.passcode = passcode;
+    }
+
+    public Boolean getAttendanceOpen() {
+        return attendanceOpen;
+    }
+
+    public void setAttendanceOpen(Boolean attendanceOpen) {
+        this.attendanceOpen = attendanceOpen;
+    }
+
+   
 }
