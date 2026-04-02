@@ -258,7 +258,7 @@ public class UsersController {
             if (user.getRole() == User.RoleType.STUDENT) {
                 return "redirect:/users/student";
             } else if (user.getRole() == User.RoleType.ADMIN) {
-                return "users/adminView";
+                return "redirect:/admin/dashboard";
             } else if (user.getRole() == User.RoleType.TEACHER) {
                 return "redirect:/users/teacher";
             } else {
@@ -273,16 +273,10 @@ public class UsersController {
         return "users/index";
     }
 
-    // route for admin view (add to routing logic for login)
-    @GetMapping("/users/adminView")
-    public String displayAdmin() {
-        return "users/adminView";
-    }
-
         // ===== ADMIN ENDPOINTS =====
     
    @GetMapping("/admin/dashboard")
-public String adminDashboard(Model model, HttpSession session) {
+   public String adminDashboard(Model model, HttpSession session) {
     User user = (User) session.getAttribute("session_user");
     if (user == null || user.getRole() != User.RoleType.ADMIN) {
         return "redirect:/login";
