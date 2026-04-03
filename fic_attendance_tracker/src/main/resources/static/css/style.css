@@ -350,3 +350,9 @@ body > .container:first-of-type > .section:nth-of-type(4) button:hover {
     background: #bb2d3b;
     transform: translateY(-2px);
 }
+
+#cancelBtn {
+    min-width: 220px;
+    font-size: 1.05rem;
+    padding: 10px 18px;
+}
