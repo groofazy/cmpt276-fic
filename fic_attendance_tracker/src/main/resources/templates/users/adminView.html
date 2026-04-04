@@ -156,6 +156,21 @@
                         <p class="mb-0">No classrooms found. <a th:href="@{/admin/classrooms/add}">Add a new classroom</a></p>
                     </div>
                 </div>
+                 <!-- Attendance Reports Section -->
+                <div class="dashboard-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4>Attendance Reports</h4>
+                        <form action="/admin/reports/export" method="GET" style="display: inline;">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-download"></i> Export as CSV
+                            </button>
+                        </form>
+                    </div>
+
+                    <p style="color: #666; font-size: 0.95rem;">
+                        <i class="fas fa-info-circle"></i> Click the button above to export all attendance records as a CSV file.
+                    </p>
+                </div>
             </div>
         </div>
     </main>
