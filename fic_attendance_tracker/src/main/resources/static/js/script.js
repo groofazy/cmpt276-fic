@@ -1,149 +1,111 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const seats = document.querySelectorAll('.seat');
-    const confirmBtn = document.getElementById('confirmBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const statusMsg = document.getElementById('statusMsg');
-    const seatIndexInput = document.getElementById('seatIndexInput');
+    const mapData = document.getElementById('map-data');
+    if (!mapData) return;
+
+    const mapId    = parseInt(mapData.dataset.mapId);
+    const userId   = parseInt(mapData.dataset.userId);
+    const userName = mapData.dataset.userName;
+    const userRole = mapData.dataset.userRole;
+    const isStudent = userRole === 'STUDENT';
+    const isTeacher = userRole === 'TEACHER';
+
+    const instructionText = document.getElementById('instruction-text');
+    const confirmBtn    = document.getElementById('confirm-btn');
+    const modal         = document.getElementById('confirm-modal');
+    const modalLabel    = document.getElementById('modal-seat-label');
 
     let selectedSeat = null;
-    let originalState = null;
+    let hasSavedSeat = false;
 
-    const existingMineSeat = document.querySelector('.seat.mine');
-    if (existingMineSeat) {
-        selectedSeat = existingMineSeat;
-        originalState = 'mine';
-    }
+    // Load existing seat data
+    fetch(`/seat/load/${mapId}`)
+        .then(res => res.json())
+        .then(seats => {
+            seats.forEach(s => {
+                const btn = document.querySelector(`.seat[data-row="${s.seatRow}"][data-number="${s.seatNumber}"]`);
+                if (!btn) return;
 
-    const setButtonState = (enabled) => {
-        if (confirmBtn) {
-            confirmBtn.disabled = !enabled;
-            confirmBtn.classList.toggle('btn-success', enabled);
-            confirmBtn.classList.toggle('btn-secondary', !enabled);
-        }
+                btn.classList.remove('seat-available');
 
-        if (cancelBtn) {
-            cancelBtn.disabled = !enabled;
-            cancelBtn.classList.toggle('btn-danger', enabled);
-            cancelBtn.classList.toggle('btn-secondary', !enabled);
-        }
-    };
+                // User is student
+                // Their own seat is green
+                // Other taken seat is gray
+                if (isStudent && s.studentId === userId) {
+                    btn.classList.add('seat-mine');
+                    btn.innerHTML = `${s.seatNumber}<br><span class="seat-name">${userName}</span>`;
+                    hasSavedSeat = true;
 
-    setButtonState(false);
+                // User is teacher
+                // Other taken seat is blue and can hover
+                } else if (isTeacher && s.studentId !== null) {
+                    btn.classList.add('seat-taken-teacher');
+                    btn.title = `Student ID: ${s.studentId}\nStudent Name: ${s.studentName || 'N/A'}`;
 
-    seats.forEach(seat => {
-        if (seat.classList.contains('occupied')) {
-            return;
-        }
+                } else {
+                    btn.classList.add('seat-taken');
+                    btn.disabled = true;
+                }
+            });
 
-        seat.addEventListener('click', function () {
-            // if user already has a saved grey seat, block all other seats
-            if (selectedSeat && selectedSeat.classList.contains('mine') && selectedSeat !== this) {
-                if (statusMsg) {
-                    statusMsg.innerHTML = `
-                        <div class="alert alert-warning">
-                            You already have a confirmed seat. Cancel it first before choosing another seat.
-                        </div>
-                    `;
+            if (hasSavedSeat && instructionText) {
+                instructionText.style.display = 'none';
+            }
+        });
+
+    if (!isStudent) return;
+
+    // Seat click handler
+    document.querySelectorAll('.seat').forEach(seat => {
+        seat.addEventListener('click', () => {
+            if (hasSavedSeat) {
+                alert('You already have a confirmed seat. Contract your teacher and admin to change it');
+                return;
+            }
+            if (!seat.classList.contains('seat-available') && seat !== selectedSeat) return;
+
+            // Select different seat (already have selected seat)
+            if (selectedSeat && selectedSeat !== seat) {
+                selectedSeat.classList.remove('seat-selected');
+                selectedSeat.classList.add('seat-available');
+            }
+
+            // Un-select the selected seat
+            if (selectedSeat === seat) {
+                seat.classList.remove('seat-selected');
+                seat.classList.add('seat-available');
+                selectedSeat = null;
+                confirmBtn.style.display = 'none';
+
+                // Show the instruction text again
+                if (instructionText) {
+                    instructionText.style.display = 'block';
                 }
                 return;
             }
 
-            // if user is currently selecting a seat, also block other seats
-            if (selectedSeat && selectedSeat.classList.contains('selecting') && selectedSeat !== this) {
-                if (statusMsg) {
-                    statusMsg.innerHTML = `
-                        <div class="alert alert-warning">
-                            You already selected a seat. Please cancel it first before choosing another seat.
-                        </div>
-                    `;
-                }
-                return;
-            }
+            // Select new seat (don't have selected seat)
+            seat.classList.remove('seat-available');
+            seat.classList.add('seat-selected');
+            selectedSeat = seat;
+            confirmBtn.style.display = 'inline-block';
 
-            const row = this.dataset.row;
-            const desk = this.dataset.desk;
-            const seatNum = this.dataset.seat;
-
-            // clicking grey seat = switch it to blue for possible cancel
-            if (this.classList.contains('mine')) {
-                this.classList.remove('mine');
-                this.classList.add('selecting');
-                selectedSeat = this;
-                originalState = 'mine';
-
-                if (seatIndexInput) {
-                    seatIndexInput.value = this.dataset.seatIndex;
-                }
-
-                setButtonState(true);
-
-                if (statusMsg) {
-                    statusMsg.innerHTML = `
-                        <div class="alert alert-info">
-                            Your current seat is selected. Confirm to keep it, or cancel to remove it.
-                        </div>
-                    `;
-                }
-                return;
-            }
-
-            if (selectedSeat === this) {
-                return;
-            }
-
-            const confirmed = window.confirm(
-                `Do you confirm selecting Row ${row}, Desk ${desk}, Seat ${seatNum}?`
-            );
-
-            if (!confirmed) {
-                return;
-            }
-
-            this.classList.remove('available');
-            this.classList.add('selecting');
-            selectedSeat = this;
-            originalState = 'available';
-
-            if (seatIndexInput) {
-                seatIndexInput.value = this.dataset.seatIndex;
-            }
-
-            setButtonState(true);
-
-            if (statusMsg) {
-                statusMsg.innerHTML = `
-                    <div class="alert alert-info">
-                        Selected: Row ${row}, Desk ${desk}, Seat ${seatNum}
-                    </div>
-                `;
+            // Hide the instruction text
+            if (instructionText) {
+                instructionText.style.display = 'none';
             }
         });
     });
 
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-            if (selectedSeat) {
-                selectedSeat.classList.remove('selecting');
-                selectedSeat.classList.remove('mine');
-                selectedSeat.classList.add('available');
+    // Confirm button open pop-up
+    confirmBtn.addEventListener('click', () => {
+        modalLabel.textContent = `${selectedSeat.dataset.row}-${selectedSeat.dataset.number}`;
+        document.getElementById('selected-row').value = selectedSeat.dataset.row;
+        document.getElementById('selected-number').value = selectedSeat.dataset.number;
+        modal.style.display = 'flex';
+    });
 
-                selectedSeat = null;
-                originalState = null;
-            }
-
-            if (seatIndexInput) {
-                seatIndexInput.value = "";
-            }
-
-            setButtonState(false);
-
-            if (statusMsg) {
-                statusMsg.innerHTML = `
-                    <div class="alert alert-warning">
-                        Selection cancelled. Please choose another seat.
-                    </div>
-                `;
-            }
-        });
-    }
+    // Cancel button close pop-up
+    document.getElementById('modal-no').addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
 });

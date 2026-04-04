@@ -2,9 +2,12 @@ package com.group14.fic_attendance_tracker.controllers;
 
 import java.util.List;
 import java.util.Map;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Set;
 import com.group14.fic_attendance_tracker.models.AttendanceRecord;
 import com.group14.fic_attendance_tracker.models.AttendanceRecordRepository;
 import com.group14.fic_attendance_tracker.models.AttendanceSummary;
@@ -15,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,6 +28,8 @@ import com.group14.fic_attendance_tracker.models.User;
 import com.group14.fic_attendance_tracker.models.UserRepository;
 import com.group14.fic_attendance_tracker.models.ClassMap;
 import com.group14.fic_attendance_tracker.models.ClassMapRepository;
+import com.group14.fic_attendance_tracker.models.Seat;
+import com.group14.fic_attendance_tracker.models.SeatRepository;
 
 
 @Controller
@@ -37,6 +43,9 @@ public class UsersController {
     
     @Autowired
     private AttendanceRecordRepository attendanceRepo;
+
+    @Autowired
+    private SeatRepository seatRepo;
     // 
     @GetMapping("/")
     public String index() {
@@ -70,7 +79,7 @@ public class UsersController {
 
         List<ClassMap> allMaps = mapRepo.findAll()
             .stream()
-            .sorted(Comparator.comparing(ClassMap::getLectureDate))
+            .filter(map->map.getActive() != null && map.getActive())
             .toList();
 
         List<ClassMap> upcomingMaps = allMaps.stream()
@@ -123,8 +132,33 @@ public class UsersController {
         List<ClassMap> maps = mapRepo.findAll()
             .stream()
             .filter(map -> map.getCreatorId() == user.getUid())
+            .filter(map -> map.getActive() != null && map.getActive() == true)
             .toList();
         model.addAttribute("maps", maps);
+
+        // Get active map
+        ClassMap activeMap = maps.stream()
+            .filter(map -> map.getActive() != null && map.getActive())
+            .findFirst()
+            .orElse(null);
+        model.addAttribute("activeMap", activeMap);
+
+        if (activeMap != null) {
+        List<Seat> seatRecords = seatRepo.findByMapId(activeMap.getMapId());
+
+        Set<Integer> presentIds = seatRecords.stream()
+          .map(Seat::getStudentId)
+          .filter(id -> id != null)
+          .collect(java.util.stream.Collectors.toSet());
+
+        List<User> presentStudents = students.stream()
+          .filter(student -> presentIds.contains(student.getUid()))
+          .toList();
+
+        model.addAttribute("presentStudents", presentStudents);
+}
+
+       
 
         return "users/teacherView";
     }
@@ -224,7 +258,7 @@ public class UsersController {
             if (user.getRole() == User.RoleType.STUDENT) {
                 return "redirect:/users/student";
             } else if (user.getRole() == User.RoleType.ADMIN) {
-                return "users/adminView";
+                return "redirect:/admin/dashboard";
             } else if (user.getRole() == User.RoleType.TEACHER) {
                 return "redirect:/users/teacher";
             } else {
@@ -239,9 +273,562 @@ public class UsersController {
         return "users/index";
     }
 
-    // route for admin view (add to routing logic for login)
-    @GetMapping("/users/adminView")
-    public String displayAdmin() {
+        // ===== ADMIN ENDPOINTS =====
+    
+   @GetMapping("/admin/dashboard")
+   public String adminDashboard(Model model, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    // Fetch all students
+    List<User> students = userRepo.findAll()
+        .stream()
+        .filter(u -> u.getRole() == User.RoleType.STUDENT)
+        .toList();
+    
+    // Fetch all professors
+    List<User> professors = userRepo.findAll()
+        .stream()
+        .filter(u -> u.getRole() == User.RoleType.TEACHER)
+        .toList();
+    
+    // Fetch all classrooms
+    List<ClassMap> classrooms = mapRepo.findAll();
+    
+    // Fetch and aggregate attendance reports
+    List<AttendanceRecord> records = attendanceRepo.findAll();
+    List<Map<String, Object>> reportData = new ArrayList<>();
+    Map<String, Map<String, Object>> aggregated = new HashMap<>();
+    
+    for (AttendanceRecord record : records) {
+        ClassMap classMap = mapRepo.findById(record.getMapId()).orElse(null);
+        if (classMap != null) {
+            User professor_user = userRepo.findById(classMap.getCreatorId()).orElse(null);
+            
+            if (professor_user != null) {
+                String key = classMap.getClassName() + "_" + classMap.getLectureDate() + "_" + professor_user.getName();
+                
+                if (!aggregated.containsKey(key)) {
+                    Map<String, Object> report = new HashMap<>();
+                    report.put("className", classMap.getClassName());
+                    report.put("lectureDate", classMap.getLectureDate());
+                    report.put("professor", professor_user.getName());
+                    report.put("totalStudents", 0);
+                    report.put("presentStudents", 0);
+                    report.put("attendanceRate", 0.0);
+                    aggregated.put(key, report);
+                }
+                
+                Map<String, Object> report = aggregated.get(key);
+                int total = (int) report.get("totalStudents") + 1;
+                int present = (int) report.get("presentStudents") + (record.isApproved() ? 1 : 0);
+                double rate = total > 0 ? (double) present / total * 100 : 0;
+                
+                report.put("totalStudents", total);
+                report.put("presentStudents", present);
+                report.put("attendanceRate", Math.round(rate * 100.0) / 100.0);
+            }
+        }
+    }
+    
+    reportData.addAll(aggregated.values());
+    
+    // Add all data to model
+    model.addAttribute("students", students);
+    model.addAttribute("professors", professors);
+    model.addAttribute("classrooms", classrooms);
+    model.addAttribute("attendanceReports", reportData);
+    model.addAttribute("user", user);
+    
+    return "users/adminView";
+}
+    
+    
+
+    @GetMapping("/admin/students")
+public String listStudents(Model model, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    // Fetch all students (users with STUDENT role)
+    List<User> students = userRepo.findAll()
+        .stream()
+        .filter(u -> u.getRole() == User.RoleType.STUDENT)
+        .toList();
+    
+    model.addAttribute("students", students);
+    model.addAttribute("user", user);
+    return "users/adminView";
+}
+
+@GetMapping("/admin/students/add")
+public String showAddStudentForm(HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    model.addAttribute("user", user);
+    return "users/addStudent";
+}
+
+@PostMapping("/admin/students/add")
+public String addStudent(@RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    String name = formData.get("name");
+    String password = formData.get("password");
+    
+    User newStudent = new User(name, password, User.RoleType.STUDENT);
+    userRepo.save(newStudent);
+    
+    return "redirect:/admin/students";
+}
+
+@GetMapping("/admin/students/edit/{id}")
+public String showEditStudentForm(@PathVariable int id, HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    User student = userRepo.findById(id).orElse(null);
+    if (student == null || student.getRole() != User.RoleType.STUDENT) {
+        return "redirect:/admin/students";
+    }
+    
+    model.addAttribute("student", student);
+    model.addAttribute("user", user);
+    return "users/editStudent";
+}
+
+@PostMapping("/admin/students/edit/{id}")
+public String editStudent(@PathVariable int id, @RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    User student = userRepo.findById(id).orElse(null);
+    if (student == null || student.getRole() != User.RoleType.STUDENT) {
+        return "redirect:/admin/students";
+    }
+    
+    student.setName(formData.get("name"));
+    student.setPassword(formData.get("password"));
+    
+    userRepo.save(student);
+    
+    return "redirect:/admin/students";
+}
+
+@PostMapping("/admin/students/delete/{id}")
+public String deleteStudent(@PathVariable int id, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    User student = userRepo.findById(id).orElse(null);
+    if (student != null && student.getRole() == User.RoleType.STUDENT) {
+        userRepo.deleteById(id);
+    }
+    
+    return "redirect:/admin/students";
+}
+    
+    @GetMapping("/admin/professors")
+public String listProfessors(Model model, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    // Fetch all professors (users with TEACHER role)
+    List<User> professors = userRepo.findAll()
+        .stream()
+        .filter(u -> u.getRole() == User.RoleType.TEACHER)
+        .toList();
+    
+    model.addAttribute("professors", professors);
+    model.addAttribute("user", user);
+    return "users/adminView";
+}
+
+@GetMapping("/admin/professors/add")
+public String showAddProfessorForm(HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    model.addAttribute("user", user);
+    return "users/addProfessor";
+}
+
+@PostMapping("/admin/professors/add")
+public String addProfessor(@RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    String name = formData.get("name");
+    String password = formData.get("password");
+    
+    User newProfessor = new User(name, password, User.RoleType.TEACHER);
+    userRepo.save(newProfessor);
+    
+    return "redirect:/admin/professors";
+}
+
+@GetMapping("/admin/professors/edit/{id}")
+public String showEditProfessorForm(@PathVariable int id, HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    User professor = userRepo.findById(id).orElse(null);
+    if (professor == null || professor.getRole() != User.RoleType.TEACHER) {
+        return "redirect:/admin/professors";
+    }
+    
+    model.addAttribute("professor", professor);
+    model.addAttribute("user", user);
+    return "users/editProfessor";
+}
+
+@PostMapping("/admin/professors/edit/{id}")
+public String editProfessor(@PathVariable int id, @RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    User professor = userRepo.findById(id).orElse(null);
+    if (professor == null || professor.getRole() != User.RoleType.TEACHER) {
+        return "redirect:/admin/professors";
+    }
+    
+    professor.setName(formData.get("name"));
+    professor.setPassword(formData.get("password"));
+    
+    userRepo.save(professor);
+    
+    return "redirect:/admin/professors";
+}
+
+@PostMapping("/admin/professors/delete/{id}")
+public String deleteProfessor(@PathVariable int id, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    User professor = userRepo.findById(id).orElse(null);
+    if (professor != null && professor.getRole() == User.RoleType.TEACHER) {
+        userRepo.deleteById(id);
+    }
+    
+    return "redirect:/admin/professors";
+}
+
+   @GetMapping("/admin/classrooms")
+public String listClassrooms(Model model, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    // Fetch all classrooms (not filtered by teacher)
+    List<ClassMap> classrooms = mapRepo.findAll();
+    
+    model.addAttribute("classrooms", classrooms);
+    model.addAttribute("user", user);
+    return "users/adminView";
+}
+
+@GetMapping("/admin/classrooms/add")
+public String showAddClassroomForm(HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    model.addAttribute("user", user);
+    return "users/addClassroom";
+}
+
+@PostMapping("/admin/classrooms/add")
+public String addClassroom(@RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    String className = formData.get("className");
+    String lectureDate = formData.get("lectureDate");
+    int numRow = Integer.parseInt(formData.get("numRow"));
+    
+    ClassMap newClassroom = new ClassMap();
+    newClassroom.setClassName(className);
+    newClassroom.setLectureDate(LocalDate.parse(lectureDate));
+    newClassroom.setNumRow(numRow);
+    newClassroom.setCreatorId(user.getUid());
+    newClassroom.setActive(true);
+    
+    mapRepo.save(newClassroom);
+    
+    return "redirect:/admin/classrooms";
+}
+
+@GetMapping("/admin/classrooms/edit/{id}")
+public String showEditClassroomForm(@PathVariable int id, HttpSession session, Model model) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    ClassMap classroom = mapRepo.findById(id).orElse(null);
+    if (classroom == null) {
+        return "redirect:/admin/classrooms";
+    }
+    
+    model.addAttribute("classroom", classroom);
+    model.addAttribute("user", user);
+    return "users/editClassroom";
+}
+
+@PostMapping("/admin/classrooms/edit/{id}")
+public String editClassroom(@PathVariable int id, @RequestParam Map<String, String> formData, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    ClassMap classroom = mapRepo.findById(id).orElse(null);
+    if (classroom == null) {
+        return "redirect:/admin/classrooms";
+    }
+    
+    classroom.setClassName(formData.get("className"));
+    classroom.setLectureDate(LocalDate.parse(formData.get("lectureDate")));
+    classroom.setNumRow(Integer.parseInt(formData.get("numRow")));
+    
+    mapRepo.save(classroom);
+    
+    return "redirect:/admin/classrooms";
+}
+
+@PostMapping("/admin/classrooms/delete/{id}")
+public String deleteClassroom(@PathVariable int id, HttpSession session) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    ClassMap classroom = mapRepo.findById(id).orElse(null);
+    if (classroom != null) {
+        mapRepo.deleteById(id);
+    }
+    
+    return "redirect:/admin/classrooms";
+}
+     
+    @GetMapping("/admin/reports")
+public String viewReports(Model model, HttpSession session,
+                         @RequestParam(required = false) String classroom,
+                         @RequestParam(required = false) String date,
+                         @RequestParam(required = false) String professor) {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        return "redirect:/login";
+    }
+    
+    // Fetch all attendance records
+    List<AttendanceRecord> records = attendanceRepo.findAll();
+    
+    // Create aggregated report data
+    List<Map<String, Object>> reportData = new ArrayList<>();
+    Map<String, Map<String, Object>> aggregated = new HashMap<>();
+    
+    for (AttendanceRecord record : records) {
+    ClassMap classMap = mapRepo.findById(record.getMapId()).orElse(null);
+    
+    if (classMap != null) {  // CHECK FIRST
+        User professor_user = userRepo.findById(classMap.getCreatorId()).orElse(null);
+        
+        if (professor_user != null) {
+            String key = classMap.getClassName() + "_" + classMap.getLectureDate() + "_" + professor_user.getName();
+            
+            if (!aggregated.containsKey(key)) {
+                Map<String, Object> report = new HashMap<>();
+                report.put("className", classMap.getClassName());
+                report.put("lectureDate", classMap.getLectureDate());
+                report.put("professor", professor_user.getName());
+                report.put("totalStudents", 0);
+                report.put("presentStudents", 0);
+                report.put("attendanceRate", 0.0);
+                aggregated.put(key, report);
+            }
+            
+            Map<String, Object> report = aggregated.get(key);
+            int total = (int) report.get("totalStudents") + 1;
+            int present = (int) report.get("presentStudents") + (record.isApproved() ? 1 : 0);
+            double rate = total > 0 ? (double) present / total * 100 : 0;
+            
+            report.put("totalStudents", total);
+            report.put("presentStudents", present);
+            report.put("attendanceRate", Math.round(rate * 100.0) / 100.0);
+        }
+    }
+}
+    
+    reportData.addAll(aggregated.values());
+    
+    // Apply filters if provided
+    if (classroom != null && !classroom.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("className").toString().equalsIgnoreCase(classroom))
+            .toList();
+    }
+    if (professor != null && !professor.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("professor").toString().equalsIgnoreCase(professor))
+            .toList();
+    }
+    if (date != null && !date.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("lectureDate").toString().equals(date))
+            .toList();
+    }
+    
+    // Get unique values for filter dropdowns
+    List<String> classrooms = mapRepo.findAll().stream()
+        .map(ClassMap::getClassName)
+        .distinct()
+        .toList();
+    
+    List<String> professors = userRepo.findAll().stream()
+        .filter(u -> u.getRole() == User.RoleType.TEACHER)
+        .map(User::getName)
+        .distinct()
+        .toList();
+    
+    List<String> dates = mapRepo.findAll().stream()
+        .map(m -> m.getLectureDate().toString())
+        .distinct()
+        .toList();
+    
+    model.addAttribute("attendanceReports", reportData);
+    model.addAttribute("classrooms", classrooms);
+    model.addAttribute("professors", professors);
+    model.addAttribute("dates", dates);
+    model.addAttribute("user", user);
+    
+    return "users/adminView";
+}
+
+@GetMapping("/admin/reports/export")
+public void exportReports(HttpServletResponse response, HttpSession session,
+                         @RequestParam(required = false) String classroom,
+                         @RequestParam(required = false) String date,
+                         @RequestParam(required = false) String professor) throws IOException {
+    User user = (User) session.getAttribute("session_user");
+    if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        response.sendRedirect("/login");
+        return;
+    }
+    
+    // Fetch and aggregate same as viewReports
+    List<AttendanceRecord> records = attendanceRepo.findAll();
+    List<Map<String, Object>> reportData = new ArrayList<>();
+    Map<String, Map<String, Object>> aggregated = new HashMap<>();
+    
+    for (AttendanceRecord record : records) {
+    ClassMap classMap = mapRepo.findById(record.getMapId()).orElse(null);
+    
+    if (classMap != null) {  // CHECK FIRST
+        User professor_user = userRepo.findById(classMap.getCreatorId()).orElse(null);
+        
+        if (professor_user != null) {
+            String key = classMap.getClassName() + "_" + classMap.getLectureDate() + "_" + professor_user.getName();
+            
+            if (!aggregated.containsKey(key)) {
+                Map<String, Object> report = new HashMap<>();
+                report.put("className", classMap.getClassName());
+                report.put("lectureDate", classMap.getLectureDate());
+                report.put("professor", professor_user.getName());
+                report.put("totalStudents", 0);
+                report.put("presentStudents", 0);
+                report.put("attendanceRate", 0.0);
+                aggregated.put(key, report);
+            }
+            
+            Map<String, Object> report = aggregated.get(key);
+            int total = (int) report.get("totalStudents") + 1;
+            int present = (int) report.get("presentStudents") + (record.isApproved() ? 1 : 0);
+            double rate = total > 0 ? (double) present / total * 100 : 0;
+            
+            report.put("totalStudents", total);
+            report.put("presentStudents", present);
+            report.put("attendanceRate", Math.round(rate * 100.0) / 100.0);
+        }
+    }
+}
+    
+    reportData.addAll(aggregated.values());
+    
+    // Apply filters
+    if (classroom != null && !classroom.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("className").toString().equalsIgnoreCase(classroom))
+            .toList();
+    }
+    if (professor != null && !professor.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("professor").toString().equalsIgnoreCase(professor))
+            .toList();
+    }
+    if (date != null && !date.isEmpty()) {
+        reportData = reportData.stream()
+            .filter(r -> r.get("lectureDate").toString().equals(date))
+            .toList();
+    }
+    
+    // Generate CSV
+    response.setContentType("text/csv");
+    response.setHeader("Content-Disposition", "attachment; filename=\"attendance_report.csv\"");
+    
+    try (PrintWriter writer = response.getWriter()) {
+        // Write header
+        writer.println("Class Name,Lecture Date,Professor,Total Students,Present Students,Attendance Rate (%)");
+        
+        // Write data rows
+        for (Map<String, Object> report : reportData) {
+            writer.printf("%s,%s,%s,%d,%d,%.2f%n",
+                report.get("className"),
+                report.get("lectureDate"),
+                report.get("professor"),
+                report.get("totalStudents"),
+                report.get("presentStudents"),
+                report.get("attendanceRate")
+            );
+        }
+    }
+}
+    
+    @GetMapping("/admin/settings")
+    public String adminSettings() {
         return "users/adminView";
     }
+    
 }

@@ -27,9 +27,21 @@ public class ClassMap {
     @Column(name="num_row")
     private int numRow;
 
-    @Column(name="seats", length = 3000)
+    @Column(name = "seats")
     private String seats;
 
+    @Column(name="active")
+    private Boolean active = true;
+
+    @Column(name="passcode")
+    private String passcode;
+
+    @Column(name="attendance_open")
+    private Boolean attendanceOpen = false;
+
+
+    
+    // Constructor for Map object
     public ClassMap() {
     }
 
@@ -38,20 +50,7 @@ public class ClassMap {
         this.className = className;
         this.lectureDate = lectureDate;
         this.numRow = numRow;
-        this.seats = generateEmptySeats();
-    }
-
-    private String generateEmptySeats() {
-        int totalSeats = 48; // 4 rows × 4 desks × 3 seats
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < totalSeats; i++) {
-            sb.append("0");
-            if (i < totalSeats - 1) {
-                sb.append(",");
-            }
-        }
-        return sb.toString();
+        this.active = true;
     }
 
     public int getMapId(){
@@ -101,4 +100,30 @@ public class ClassMap {
     public void setSeats(String seats) {
         this.seats = seats;
     }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public String getPasscode() {
+        return passcode;
+    }
+
+    public void setPasscode(String passcode) {
+        this.passcode = passcode;
+    }
+
+    public Boolean getAttendanceOpen() {
+        return attendanceOpen;
+    }
+
+    public void setAttendanceOpen(Boolean attendanceOpen) {
+        this.attendanceOpen = attendanceOpen;
+    }
+
+   
 }
