@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Classroom - FIC Attendance Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-graduation-cap"></i> FIC Tracker</h3>
+            </div>
+            <ul class="sidebar-nav">
+                <li><a th:href="@{/admin/dashboard}"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
+                <li><a th:href="@{/admin/students}"><i class="fas fa-users"></i><span>Student Management</span></a></li>
+                <li><a th:href="@{/admin/professors}"><i class="fas fa-chalkboard-user"></i><span>Professor Management</span></a></li>
+                <li><a th:href="@{/admin/classrooms}" class="active"><i class="fas fa-door-open"></i><span>Classroom Management</span></a></li>
+                <li><a th:href="@{/admin/reports}"><i class="fas fa-file-chart-line"></i><span>Attendance Reports</span></a></li>
+                <li><a th:href="@{/admin/settings}"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+                <li style="margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.2);"><a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="topbar">
+                <h2>Edit Classroom</h2>
+            </div>
+
+            <div class="content">
+                <div class="section">
+                    <form th:action="@{/admin/classrooms/edit/{id}(id=${classroom.mapId})}" method="post" class="form-container">
+                        <div class="mb-3">
+                            <label for="className" class="form-label">Class Name:</label>
+                            <input type="text" name="className" id="className" class="form-control" th:value="${classroom.className}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="lectureDate" class="form-label">Lecture Date:</label>
+                            <input type="date" name="lectureDate" id="lectureDate" class="form-control" th:value="${#temporals.format(classroom.lectureDate, 'yyyy-MM-dd')}" required>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Update Classroom</button>
+                            <a th:href="@{/admin/classrooms}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
