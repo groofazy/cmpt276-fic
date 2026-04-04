@@ -13,4 +13,6 @@ public interface SeatRepository extends JpaRepository<Seat, Integer> {
     Seat findByMapIdAndSeatRowAndSeatNumber(int mapId, int seatRow, String seatNumber);
 
     void deleteByMapId(int mapId);
+
+    Seat findByMapIdAndStudentId(int mapId, int studentId);
 }

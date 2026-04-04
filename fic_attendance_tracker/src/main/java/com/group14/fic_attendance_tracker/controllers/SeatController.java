@@ -96,4 +96,28 @@ public class SeatController {
         response.setStatus(201);
         return "redirect:/maps/view/" + mapId;
     }
+
+    @PostMapping("/seat/cancel")
+    public String cancelSeat(
+        @RequestParam("mapId") int mapId,
+        HttpSession session,
+        HttpServletResponse response 
+    ) {
+        User user = (User) session.getAttribute("session_user");
+        if (user == null || user.getRole() != User.RoleType.STUDENT) {
+            return "users/login";
+        }
+
+        int studentId = user.getUid();
+        Seat existing = seatRepo.findByMapIdAndStudentId(mapId, studentId);
+
+        if (existing != null) {
+            seatRepo.delete(existing);
+            response.setStatus(200);
+        } else {
+            response.setStatus(404);
+        }
+
+        return "redirect:/maps/view/" + mapId;
+    }
 }
