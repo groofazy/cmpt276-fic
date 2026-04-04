@@ -4,11 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.time.LocalDate;
 import java.util.ArrayList;
-
 import java.util.Set;
-import com.group14.fic_attendance_tracker.models.AttendanceRecord;
-import com.group14.fic_attendance_tracker.models.AttendanceRecordRepository;
-import com.group14.fic_attendance_tracker.models.AttendanceSummary;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,7 +24,11 @@ import com.group14.fic_attendance_tracker.models.ClassMap;
 import com.group14.fic_attendance_tracker.models.ClassMapRepository;
 import com.group14.fic_attendance_tracker.models.Seat;
 import com.group14.fic_attendance_tracker.models.SeatRepository;
-
+import com.group14.fic_attendance_tracker.models.Course;
+import com.group14.fic_attendance_tracker.models.CourseRepository;
+import com.group14.fic_attendance_tracker.models.AttendanceRecord;
+import com.group14.fic_attendance_tracker.models.AttendanceRecordRepository;
+import com.group14.fic_attendance_tracker.models.AttendanceSummary;
 
 @Controller
 public class UsersController {
@@ -44,6 +44,10 @@ public class UsersController {
 
     @Autowired
     private SeatRepository seatRepo;
+
+    @Autowired
+    private CourseRepository courseRepo;
+
     // 
     @GetMapping("/")
     public String index() {
@@ -142,21 +146,19 @@ public class UsersController {
         model.addAttribute("activeMap", activeMap);
 
         if (activeMap != null) {
-        List<Seat> seatRecords = seatRepo.findByMapId(activeMap.getMapId());
+            List<Seat> seatRecords = seatRepo.findByMapId(activeMap.getMapId());
 
-        Set<Integer> presentIds = seatRecords.stream()
-          .map(Seat::getStudentId)
-          .filter(id -> id != null)
-          .collect(java.util.stream.Collectors.toSet());
+            Set<Integer> presentIds = seatRecords.stream()
+            .map(Seat::getStudentId)
+            .filter(id -> id != null)
+            .collect(java.util.stream.Collectors.toSet());
 
-        List<User> presentStudents = students.stream()
-          .filter(student -> presentIds.contains(student.getUid()))
-          .toList();
+            List<User> presentStudents = students.stream()
+            .filter(student -> presentIds.contains(student.getUid()))
+            .toList();
 
-        model.addAttribute("presentStudents", presentStudents);
-}
-
-       
+            model.addAttribute("presentStudents", presentStudents);
+        }
 
         return "users/teacherView";
     }
@@ -200,7 +202,7 @@ public class UsersController {
             if (user.getRole() == User.RoleType.STUDENT) {
                 return "redirect:/users/student";
             } else if (user.getRole() == User.RoleType.ADMIN) {
-                return "users/adminView";
+                return "redirect:/admin/dashboard";
             } else if (user.getRole() == User.RoleType.TEACHER) {
                 return "redirect:/users/teacher";
             } else {
@@ -225,7 +227,7 @@ public class UsersController {
             model.addAttribute("user", user);
 
             if (user.getRole() == User.RoleType.ADMIN) {
-                return "users/adminView";
+                return "redirect:/admin/dashboard";
             }
 
             else if (user.getRole() == User.RoleType.TEACHER) {
@@ -256,7 +258,7 @@ public class UsersController {
             if (user.getRole() == User.RoleType.STUDENT) {
                 return "redirect:/users/student";
             } else if (user.getRole() == User.RoleType.ADMIN) {
-                return "users/adminView";
+                return "redirect:/admin/dashboard";
             } else if (user.getRole() == User.RoleType.TEACHER) {
                 return "redirect:/users/teacher";
             } else {
@@ -282,7 +284,10 @@ public class UsersController {
     public String adminDashboard(Model model) {
         model.addAttribute("students", List.of());
         model.addAttribute("professors", List.of());
-        model.addAttribute("courses", List.of());
+        List<Course> allCourses = courseRepo.findAll()
+            .stream()
+            .toList();
+        model.addAttribute("courses", allCourses);
         model.addAttribute("classrooms", List.of());
         model.addAttribute("attendanceReports", List.of());
         return "users/adminView";
@@ -352,19 +357,28 @@ public class UsersController {
         return "redirect:/admin/professors";
     }
 
-    @GetMapping("/admin/courses")
-    public String listCourses(Model model) {
-        return "redirect:/users/teacher";
-    }
-    
     @GetMapping("/admin/courses/add")
     public String showAddCoursesForm() {
         return "users/addCourse";
     }
     
     @PostMapping("/admin/courses/add")
-    public String addCourses(@RequestParam Map<String, String> formData) {
-        return "redirect:/users/teacher";
+    public String addCourses(@RequestParam("subject") String subject,
+            @RequestParam("number") String number,
+            HttpSession session,
+            HttpServletResponse response
+    ) {
+        User user = (User) session.getAttribute("session_user");
+        if (user == null || user.getRole() != User.RoleType.ADMIN) {
+            return "users/login";
+        }
+
+        int adminId = user.getUid();
+        Course.CourseSubject courseSubject = Course.CourseSubject.valueOf(subject);
+        String courseNum = String.format("%03d", Integer.parseInt(number));
+        courseRepo.save(new Course(adminId, courseSubject, courseNum));
+        response.setStatus(201);
+        return "redirect:/admin/dashboard";
     }
     
     @GetMapping("/admin/courses/edit/{id}")
@@ -412,7 +426,6 @@ public class UsersController {
         return "redirect:/users/teacher";
     }
 
-     
     @GetMapping("/admin/reports")
     public String viewReports(Model model,
                              @RequestParam(required = false) String classroom,
