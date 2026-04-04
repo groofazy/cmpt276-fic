@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.seat').forEach(seat => {
         seat.addEventListener('click', () => {
             if (hasSavedSeat) {
-                alert('You already have a confirmed seat. Contract your teacher and admin to change it');
+                alert('You already have a confirmed seat. Click the Cancel My Confirmed Seat button below');
                 return;
             }
             if (!seat.classList.contains('seat-available') && seat !== selectedSeat) return;
