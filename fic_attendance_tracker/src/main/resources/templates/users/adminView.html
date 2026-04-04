@@ -5,300 +5,161 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - FIC Attendance Tracker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <div class="wrapper">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h3><i class="fas fa-graduation-cap"></i> FIC Tracker</h3>
-            </div>
-            <ul class="sidebar-nav">
-                <li>
-                    <a th:href="@{/admin/dashboard}" class="active">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/students}">
-                        <i class="fas fa-users"></i>
-                        <span>Student Management</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/professors}">
-                        <i class="fas fa-chalkboard-user"></i>
-                        <span>Professor Management</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/classrooms}">
-                        <i class="fas fa-door-open"></i>
-                        <span>Classroom Management</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/reports}">
-                        <i class="fas fa-file-chart-line"></i>
-                        <span>Attendance Reports</span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/admin/settings}">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
-                <li style="margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
-                    <a th:href="@{/logout}">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </li>
-            </ul>
-        </aside>
+    <main class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-11">
+                <h1>ADMIN DASHBOARD</h1>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Top Navigation Bar -->
-            <div class="topbar">
-                <h2>Admin Dashboard</h2>
-                <div class="user-menu">
-                    <span th:text="${#dates.format(#dates.createNow(), 'MMM dd, yyyy')}"></span>
-                    <i class="fas fa-bell"></i>
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #667eea;"></div>
+                <div class="mb-3">
+                    <a th:href="@{/logout}" class="btn btn-outline-danger">Logout</a>
                 </div>
-            </div>
 
-            <!-- Content Area -->
-            <div class="content">
                 <!-- Student Management Section -->
-                <div class="section">
-    <div class="section-header">
-        <h3><i class="fas fa-users"></i> Student Management</h3>
-        <a th:href="@{/admin/students/add}" class="btn-add">
-            <i class="fas fa-plus"></i> Add Student
-        </a>
-    </div>
+                <div class="dashboard-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4>Student Management</h4>
+                        <a th:href="@{/admin/students/add}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Add Student
+                        </a>
+                    </div>
 
-    <!-- Students Table -->
-    <div th:if="${students != null and students.size() > 0}">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Student ID</th>
-                    <th>Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="student : ${students}">
-                    <td th:text="${student.uid}"></td>
-                    <td th:text="${student.name}"></td>
-                    <td>
-                        <div class="action-buttons">
-                            <a th:href="@{/admin/students/edit/{id}(id=${student.uid})}" class="btn-sm btn-edit">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <form th:action="@{/admin/students/delete/{id}(id=${student.uid})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
-                                <button type="submit" class="btn-sm btn-delete">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div th:if="${students == null or students.size() == 0}" class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <p>No students found. <a th:href="@{/admin/students/add}">Add a new student</a></p>
-    </div>
-</div>
+                    <!-- Students Table -->
+                    <div th:if="${students != null and students.size() > 0}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="student : ${students}">
+                                    <td th:text="${student.uid}"></td>
+                                    <td th:text="${student.name}"></td>
+                                    <td>
+                                        <a th:href="@{/admin/students/edit/{id}(id=${student.uid})}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <form th:action="@{/admin/students/delete/{id}(id=${student.uid})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${students == null or students.size() == 0}">
+                        <p class="mb-0">No students found. <a th:href="@{/admin/students/add}">Add a new student</a></p>
+                    </div>
+                </div>
 
                 <!-- Professor Management Section -->
-               <div class="section">
-    <div class="section-header">
-        <h3><i class="fas fa-chalkboard-user"></i> Professor Management</h3>
-        <a th:href="@{/admin/professors/add}" class="btn-add">
-            <i class="fas fa-plus"></i> Add Professor
-        </a>
-    </div>
+                <div class="dashboard-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4>Professor Management</h4>
+                        <a th:href="@{/admin/professors/add}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Add Professor
+                        </a>
+                    </div>
 
-    <!-- Professors Table -->
-    <div th:if="${professors != null and professors.size() > 0}">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Prof ID</th>
-                    <th>Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="professor : ${professors}">
-                    <td th:text="${professor.uid}"></td>
-                    <td th:text="${professor.name}"></td>
-                    <td>
-                        <div class="action-buttons">
-                            <a th:href="@{/admin/professors/edit/{id}(id=${professor.uid})}" class="btn-sm btn-edit">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <form th:action="@{/admin/professors/delete/{id}(id=${professor.uid})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
-                                <button type="submit" class="btn-sm btn-delete">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div th:if="${professors == null or professors.size() == 0}" class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <p>No professors found. <a th:href="@{/admin/professors/add}">Add a new professor</a></p>
-    </div>
-</div>
+                    <!-- Professors Table -->
+                    <div th:if="${professors != null and professors.size() > 0}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Prof ID</th>
+                                    <th>Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="professor : ${professors}">
+                                    <td th:text="${professor.uid}"></td>
+                                    <td th:text="${professor.name}"></td>
+                                    <td>
+                                        <a th:href="@{/admin/professors/edit/{id}(id=${professor.uid})}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <form th:action="@{/admin/professors/delete/{id}(id=${professor.uid})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${professors == null or professors.size() == 0}">
+                        <p class="mb-0">No professors found. <a th:href="@{/admin/professors/add}">Add a new professor</a></p>
+                    </div>
+                </div>
 
                 <!-- Classroom Management Section -->
-               <div class="section">
-    <div class="section-header">
-        <h3><i class="fas fa-door-open"></i> Classroom Management</h3>
-        <a th:href="@{/admin/classrooms/add}" class="btn-add">
-            <i class="fas fa-plus"></i> Add Classroom
-        </a>
-    </div>
-
-    <!-- Classrooms Table -->
-    <div th:if="${classrooms != null and classrooms.size() > 0}">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Classroom ID</th>
-                    <th>Class Name</th>
-                    <th>Lecture Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="classroom : ${classrooms}">
-                    <td th:text="${classroom.mapId}"></td>
-                    <td th:text="${classroom.className}"></td>
-                    <td th:text="${#temporals.format(classroom.lectureDate, 'MMM dd, yyyy')}"></td>
-                    <td>
-                        <span th:if="${classroom.active != null and classroom.active}" class="badge bg-success">Active</span>
-                        <span th:if="${classroom.active == null or !classroom.active}" class="badge bg-secondary">Inactive</span>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <a th:href="@{/admin/classrooms/edit/{id}(id=${classroom.mapId})}" class="btn-sm btn-edit">
-                                <i class="fas fa-edit"></i> Edit
+                <div class="dashboard-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4>Classroom Management</h4>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div class="btn-group" role="group">
+                                <a th:href="@{/admin/dashboard(classroomStatus='all')}" class="btn btn-outline-secondary btn-sm" th:classappend="${classroomStatus == null or classroomStatus == 'all' ? 'active' : ''}">All</a>
+                                <a th:href="@{/admin/dashboard(classroomStatus='active')}" class="btn btn-outline-secondary btn-sm" th:classappend="${classroomStatus == 'active' ? 'active' : ''}">Active</a>
+                                <a th:href="@{/admin/dashboard(classroomStatus='inactive')}" class="btn btn-outline-secondary btn-sm" th:classappend="${classroomStatus == 'inactive' ? 'active' : ''}">Inactive</a>
+                            </div>
+                            <a th:href="@{/admin/classrooms/add}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Add Classroom
                             </a>
-                            <form th:action="@{/admin/classrooms/delete/{id}(id=${classroom.mapId})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
-                                <button type="submit" class="btn-sm btn-delete">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            </form>
                         </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div th:if="${classrooms == null or classrooms.size() == 0}" class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <p>No classrooms found. <a th:href="@{/admin/classrooms/add}">Add a new classroom</a></p>
-    </div>
-</div>
+                    </div>
 
-                <!-- Attendance Reports Section -->
-                    <!-- Reports Table -->
-                    <div class="section">
-    <div class="section-header">
-        <h3><i class="fas fa-file-chart-line"></i> Attendance Reports</h3>
-        <form action="/admin/reports/export" method="GET" style="display: inline;">
-            <input type="hidden" name="classroom" th:value="${classroom}">
-            <input type="hidden" name="date" th:value="${date}">
-            <input type="hidden" name="professor" th:value="${professor}">
-            <button type="submit" class="btn-add">
-                <i class="fas fa-download"></i> Export as CSV
-            </button>
-        </form>
-    </div>
-
-    <!-- Filters -->
-    <div class="filters" style="margin-bottom: 20px;">
-        <form action="/admin/reports" method="GET" style="display: flex; gap: 15px; flex-wrap: wrap;">
-            <div>
-                <label for="classroom">Class:</label>
-                <select name="classroom" id="classroom" class="form-select form-select-sm" style="width: 150px;">
-                    <option value="">All Classes</option>
-                    <option th:each="c : ${classrooms}" th:value="${c.className}" th:text="${c.className}"></option>
-                </select>
+                    <!-- Classrooms Table -->
+                    <div th:if="${classrooms != null and classrooms.size() > 0}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Classroom ID</th>
+                                    <th>Class Name</th>
+                                    <th>Lecture Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="classroom : ${classrooms}">
+                                    <td th:text="${classroom.mapId}"></td>
+                                    <td th:text="${classroom.className}"></td>
+                                    <td th:text="${#temporals.format(classroom.lectureDate, 'MMM dd, yyyy')}"></td>
+                                    <td>
+                                        <span th:if="${classroom.active != null and classroom.active}" class="badge bg-success">Active</span>
+                                        <span th:if="${classroom.active == null or !classroom.active}" class="badge bg-secondary">Inactive</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/admin/classrooms/edit/{id}(id=${classroom.mapId})}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <form th:action="@{/admin/classrooms/delete/{id}(id=${classroom.mapId})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${classrooms == null or classrooms.size() == 0}">
+                        <p class="mb-0">No classrooms found. <a th:href="@{/admin/classrooms/add}">Add a new classroom</a></p>
+                    </div>
+                </div>
             </div>
-            
-            <div>
-                <label for="professor">Professor:</label>
-                <select name="professor" id="professor" class="form-select form-select-sm" style="width: 150px;">
-                    <option value="">All Professors</option>
-                    <option th:each="p : ${professors}" th:value="${p.name}" th:text="${p.name}"></option>
-                </select>
-            </div>
-            
-            <div>
-                <label for="date">Date:</label>
-                <select name="date" id="date" class="form-select form-select-sm" style="width: 150px;">
-                    <option value="">All Dates</option>
-                    <option th:each="d : ${dates}" th:value="${d}" th:text="${d}"></option>
-                </select>
-            </div>
-            
-            <button type="submit" class="btn btn-sm btn-primary" style="align-self: flex-end;">Filter</button>
-        </form>
-    </div>
-
-    <!-- Reports Table -->
-    <div th:if="${attendanceReports != null and attendanceReports.size() > 0}">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Class Name</th>
-                    <th>Lecture Date</th>
-                    <th>Professor</th>
-                    <th>Total Students</th>
-                    <th>Present Students</th>
-                    <th>Attendance Rate</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="report : ${attendanceReports}">
-                    <td th:text="${report.className}"></td>
-                    <td th:text="${#temporals.format(report.lectureDate, 'MMM dd, yyyy')}"></td>
-                    <td th:text="${report.professor}"></td>
-                    <td th:text="${report.totalStudents}"></td>
-                    <td th:text="${report.presentStudents}"></td>
-                    <td>
-                        <span th:text="${#numbers.formatDecimal(report.attendanceRate, 1, 2)}"></span>%
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div th:if="${attendanceReports == null or attendanceReports.size() == 0}" class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <p>No attendance reports found.</p>
-    </div>
-</div>
         </div>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDzlPLNiaGLVXvNK7P6miRxDa7v1BWWOd5YwIS3+UUvXnJVsvNaqPtaB2v" crossorigin="anonymous"></script>
-    
 </body>
 </html>
