@@ -35,6 +35,12 @@
                     </a>
                 </li>
                 <li>
+                    <a th:href="@{/admin/courses}">
+                        <i class="fas fa-book"></i>
+                        <span>Course Management</span>
+                    </a>
+                </li>
+                <li>
                     <a th:href="@{/admin/classrooms}">
                         <i class="fas fa-door-open"></i>
                         <span>Classroom Management</span>
@@ -170,6 +176,53 @@
                     <div th:if="${professors == null or professors.size() == 0}" class="empty-state">
                         <i class="fas fa-inbox"></i>
                         <p>No professors found. <a th:href="@{/admin/professors/add}">Add a new professor</a></p>
+                    </div>
+                </div>
+
+                <!-- Course Management Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-book"></i> Course Management</h3>
+                        <a th:href="@{/admin/courses/add}" class="btn-add">
+                            <i class="fas fa-plus"></i> Add Course
+                        </a>
+                    </div>
+
+                    <!-- Courses Table -->
+                    <div th:if="${courses != null and courses.size() > 0}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Course ID</th>
+                                    <th>Course Subject</th>
+                                    <th>Course Number</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="course : ${courses}">
+                                    <td th:text="${course.courseId}"></td>
+                                    <td th:text="${course.subject}"></td>
+                                    <td th:text="${course.number}"></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a th:href="@{/admin/courses/edit/{id}(id=${course.id})}" class="btn-sm btn-edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form th:action="@{/admin/courses/delete/{id}(id=${course.id})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                                <button type="submit" class="btn-sm btn-delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${courses == null or courses.size() == 0}" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No courses found. <a th:href="@{/admin/courses/add}">Add a new course</a></p>
                     </div>
                 </div>
 

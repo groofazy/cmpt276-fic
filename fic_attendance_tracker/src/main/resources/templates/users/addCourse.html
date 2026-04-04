@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Course</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+            <div class="mt-4">
+                <a th:href="@{/back}" class="btn btn-secondary">Back</a> <!-- Returns back to Admin Dashboard page-->
+            </div>                   
+                <h1 class="text-center mt-5 mb-4">New Course</h1>
+
+                <form action="/courses/add" method="post">
+
+                    <div class="mb-3">
+                        <label for="subject">Course Subject:</label>
+                        <select name="subject" class="form-select" id="subject">
+                            <option value="ACMA">ACMA</option>  
+                            <option value="ALS">ALS</option>
+                            <option value="APMA">APMA</option>
+                            <option value="ARAB">ARAB</option>
+                            <option value="ARCH">ARCH</option>
+                            <option value="ASC">ASC</option>
+                            <option value="BISC">BISC</option>
+                            <option value="BOT">BOT</option>
+                            <option value="BPK">BPK</option>
+                            <option value="BUEC">BUEC</option>
+                            <option value="BUS">BUS</option>
+                            <option value="CA">CA</option>
+                            <option value="CENV">CENV</option>
+                            <option value="CHEM">CHEM</option>
+                            <option value="CHIN">CHIN</option>
+                            <option value="CMNS">CMNS</option>
+                            <option value="CMPT">CMPT</option>
+                            <option value="COGS">COGS</option>
+                            <option value="CRIM">CRIM</option>
+                            <option value="DATA">DATA</option>
+                            <option value="DDP">DDP</option>
+                            <option value="DEVS">DEVS</option>
+                            <option value="DIAL">DIAL</option>
+                            <option value="DMED">DMED</option>
+                            <option value="EAS">EAS</option>
+                            <option value="EASC">EASC</option>
+                            <option value="EBP">EBP</option>
+                            <option value="ECO">ECO</option>
+                            <option value="ECON">ECON</option>
+                            <option value="EDPR">EDPR</option>
+                            <option value="EDUC">EDUC</option>
+                            <option value="ENGL">ENGL</option>
+                            <option value="ENSC">ENSC</option>
+                            <option value="ENV">ENV</option>
+                            <option value="EVSC">EVSC</option>
+                            <option value="EXCH">EXCH</option>
+                            <option value="EXPL">EXPL</option>
+                            <option value="FAL">FAL</option>
+                            <option value="FAN">FAN</option>
+                            <option value="FASS">FASS</option>
+                            <option value="FEP">FEP</option>
+                            <option value="FNLG">FNLG</option>
+                            <option value="FNST">FNST</option>
+                            <option value="FPA">FPA</option>
+                            <option value="FREN">FREN</option>
+                            <option value="GA">GA</option>
+                            <option value="GDST">GDST</option>
+                            <option value="GEOG">GEOG</option>
+                            <option value="GERM">GERM</option>
+                            <option value="GERO">GERO</option>
+                            <option value="GLP">GLP</option>
+                            <option value="GRAD">GRAD</option>
+                            <option value="GRK">GRK</option>
+                            <option value="GS">GS</option>
+                            <option value="GSWS">GSWS</option>
+                            <option value="HIST">HIST</option>
+                            <option value="HS">HS</option>
+                            <option value="HSCI">HSCI</option>
+                            <option value="HUM">HUM</option>
+                            <option value="IAT">IAT</option>
+                            <option value="INDG">INDG</option>
+                            <option value="INLG">INLG</option>
+                            <option value="INS">INS</option>
+                            <option value="IS">IS</option>
+                            <option value="ISPO">ISPO</option>
+                            <option value="ITAL">ITAL</option>
+                            <option value="JAPN">JAPN</option>
+                            <option value="KIN">KIN</option>
+                            <option value="LANG">LANG</option>
+                            <option value="LAS">LAS</option>
+                            <option value="LBRL">LBRL</option>
+                            <option value="LBST">LBST</option>
+                            <option value="LING">LING</option>
+                            <option value="LS">LS</option>
+                            <option value="MACM">MACM</option>
+                            <option value="MASC">MASC</option>
+                            <option value="MATH">MATH</option>
+                            <option value="MBB">MBB</option>
+                            <option value="MIL">MIL</option>
+                            <option value="MPP">MPP</option>
+                            <option value="MSE">MSE</option>
+                            <option value="MSSC">MSSC</option>
+                            <option value="NEUR">NEUR</option>
+                            <option value="NUSC">NUSC</option>
+                            <option value="ONC">ONC</option>
+                            <option value="PERS">PERS</option>
+                            <option value="PHIL">PHIL</option>
+                            <option value="PHYS">PHYS</option>
+                            <option value="PLAN">PLAN</option>
+                            <option value="PLCY">PLCY</option>
+                            <option value="POL">POL</option>
+                            <option value="PORT">PORT</option>
+                            <option value="PSYC">PSYC</option>
+                            <option value="PUB">PUB</option>
+                            <option value="PUNJ">PUNJ</option>
+                            <option value="REM">REM</option>
+                            <option value="RISK">RISK</option>
+                            <option value="SA">SA</option>
+                            <option value="SAR">SAR</option>
+                            <option value="SCD">SCD</option>
+                            <option value="SCI">SCI</option>
+                            <option value="SD">SD</option>
+                            <option value="SDA">SDA</option>
+                            <option value="SEE">SEE</option>
+                            <option value="SPAN">SPAN</option>
+                            <option value="STAT">STAT</option>
+                            <option value="TECH">TECH</option>
+                            <option value="TEKX">TEKX</option>
+                            <option value="TRSS">TRSS</option>
+                            <option value="UGRAD">UGRAD</option>
+                            <option value="URB">URB</option>
+                            <option value="WDA">WDA</option>
+                            <option value="WKTM">WKTM</option>
+                            <option value="WL">WL</option>
+                            <option value="WS">WS</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="number">Course Number:</label>
+                        <input type="text" 
+                            name="number" 
+                            id="number"
+                            class="form-control form-control-lg" 
+                            required 
+                            maxlength="3" 
+                            pattern="\d{1,3}" 
+                            title="Invalid course number"
+                            oninvalid="this.setCustomValidity('Invalid course number')"
+                            oninput="this.setCustomValidity('')">
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <input class="btn btn-primary" type="submit" value="Add course" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>  
+</body>
+</html>

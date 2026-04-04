@@ -242,7 +242,7 @@ public class UsersController {
          }
     }
 
-    // Back button logic (Back button in Create page and mapView page)
+    // Back button logic (Back button in Create, mapView & addCourse page)
     @GetMapping("/back")
     public String getBack(Model model, HttpSession session) {
         User user = (User) session.getAttribute("session_user");
@@ -277,12 +277,12 @@ public class UsersController {
         return "users/adminView";
     }
 
-        // ===== ADMIN ENDPOINTS =====
-    
+    // ===== ADMIN ENDPOINTS =====
     @GetMapping("/admin/dashboard")
     public String adminDashboard(Model model) {
         model.addAttribute("students", List.of());
         model.addAttribute("professors", List.of());
+        model.addAttribute("courses", List.of());
         model.addAttribute("classrooms", List.of());
         model.addAttribute("attendanceReports", List.of());
         return "users/adminView";
@@ -352,6 +352,36 @@ public class UsersController {
         return "redirect:/admin/professors";
     }
 
+    @GetMapping("/admin/courses")
+    public String listCourses(Model model) {
+        return "redirect:/users/teacher";
+    }
+    
+    @GetMapping("/admin/courses/add")
+    public String showAddCoursesForm() {
+        return "users/addCourse";
+    }
+    
+    @PostMapping("/admin/courses/add")
+    public String addCourses(@RequestParam Map<String, String> formData) {
+        return "redirect:/users/teacher";
+    }
+    
+    @GetMapping("/admin/courses/edit/{id}")
+    public String showEditCoursesForm(@PathVariable Long id, Model model) {
+        return "redirect:/users/teacher";
+    }
+    
+    @PostMapping("/admin/courses/edit/{id}")
+    public String editCourses(@PathVariable Long id, @RequestParam Map<String, String> formData) {
+        return "redirect:/users/teacher";
+    }
+    
+    @PostMapping("/admin/courses/delete/{id}")
+    public String deleteCourses(@PathVariable Long id) {
+        return "redirect:/users/teacher";
+    }
+
     @GetMapping("/admin/classrooms")
     public String listClassrooms(Model model) {
         return "redirect:/users/teacher";
@@ -389,6 +419,7 @@ public class UsersController {
                              @RequestParam(required = false) String date,
                              @RequestParam(required = false) String professor) {
         model.addAttribute("attendanceReports", List.of());
+        model.addAttribute("courses", List.of());
         model.addAttribute("classrooms", List.of());
         model.addAttribute("professors", List.of());
         return "users/adminView";
