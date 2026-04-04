@@ -57,7 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Seat click handler
     document.querySelectorAll('.seat').forEach(seat => {
         seat.addEventListener('click', () => {
-            if (hasSavedSeat) return;
+            if (hasSavedSeat) {
+                alert('You already have a confirmed seat. Contract your teacher and admin to change it');
+                return;
+            }
             if (!seat.classList.contains('seat-available') && seat !== selectedSeat) return;
 
             // Select different seat (already have selected seat)
