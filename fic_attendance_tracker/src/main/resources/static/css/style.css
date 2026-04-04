@@ -623,55 +623,6 @@ body {
     border-radius: 12px;
 }
 
-/* Seating Grid */
-.seating-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-}
-
-.seat-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 25px;
-}
-
-.desk-group {
-    display: flex;
-    width: 138px;
-    height: 60px;
-}
-
-.row-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #ccc;
-}
-
-.seat {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    border: 1px solid #000;
-    border-radius: 4px;
-    width: 46px;
-    height: 60px;
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.2;
-    padding: 4px;
-    transition: background-color 0.15s, transform 0.1s;
-}
-
-/* Seat states for Student View*/
 .dashboard-section {
     background: #ffffff;
     border: 1px solid #dee2e6;
@@ -732,34 +683,52 @@ body {
     letter-spacing: 0.3px;
 }
 
+/* ==================== SEATING MAP ==================== */
 .seating-grid {
     display: flex;
     flex-direction: column;
+    gap: 35px;
     align-items: center;
-    gap: 20px;
 }
 
 .seat-row {
     display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 16px;
+    gap: 50px;
 }
 
 .desk-group {
     display: flex;
-    width: 210px;
-    height: 100px;
-    border: 2px solid #b6b6b6;
-    background-color: #ffffff;
+    background-color: transparent; 
     box-sizing: border-box;
 }
 
+.row-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #000000;
+}
+
 .seat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
     border: 1px solid #000;
-    width: 44px;
-    height: 64px;
-    background-color: #fff;
-    cursor: pointer;
+    border-radius: 4px;
+    width: 45px;
+    height: 60px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 4px;
+    transition: background-color 0.15s, transform 0.1s;
 }
 
 .seat-available:hover {
@@ -816,16 +785,15 @@ body.teacher-view .seat-available:hover {
 
 /* Instruction Text */
 .instruction-text {
-    color: #000;
     font-size: 1.1rem;
     font-weight: 500;
 }
 
 .classroom-front {
-    color: #ccc;
+    color: #000;
     margin-bottom: 20px;
     padding-bottom: 8px;
-    border-bottom: 2px solid #aaa;
+    border-bottom: 2px solid #000;
     width: fit-content;
     margin-left: auto;
     margin-right: auto;

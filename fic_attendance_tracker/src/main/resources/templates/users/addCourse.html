@@ -16,7 +16,7 @@
             </div>                   
                 <h1 class="text-center mt-5 mb-4">New Course</h1>
 
-                <form action="/admin/courses/add" method="post">
+                <form th:action="@{/courses/add}" method="post">
 
                     <div class="mb-3">
                         <label for="subject">Course Subject:</label>

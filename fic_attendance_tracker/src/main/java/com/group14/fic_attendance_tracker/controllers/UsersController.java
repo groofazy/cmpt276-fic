@@ -357,45 +357,6 @@ public class UsersController {
         return "redirect:/admin/professors";
     }
 
-    @GetMapping("/admin/courses/add")
-    public String showAddCoursesForm() {
-        return "users/addCourse";
-    }
-    
-    @PostMapping("/admin/courses/add")
-    public String addCourses(@RequestParam("subject") String subject,
-            @RequestParam("number") String number,
-            HttpSession session,
-            HttpServletResponse response
-    ) {
-        User user = (User) session.getAttribute("session_user");
-        if (user == null || user.getRole() != User.RoleType.ADMIN) {
-            return "users/login";
-        }
-
-        int adminId = user.getUid();
-        Course.CourseSubject courseSubject = Course.CourseSubject.valueOf(subject);
-        String courseNum = String.format("%03d", Integer.parseInt(number));
-        courseRepo.save(new Course(adminId, courseSubject, courseNum));
-        response.setStatus(201);
-        return "redirect:/admin/dashboard";
-    }
-    
-    @GetMapping("/admin/courses/edit/{id}")
-    public String showEditCoursesForm(@PathVariable Long id, Model model) {
-        return "redirect:/users/teacher";
-    }
-    
-    @PostMapping("/admin/courses/edit/{id}")
-    public String editCourses(@PathVariable Long id, @RequestParam Map<String, String> formData) {
-        return "redirect:/users/teacher";
-    }
-    
-    @PostMapping("/admin/courses/delete/{id}")
-    public String deleteCourses(@PathVariable Long id) {
-        return "redirect:/users/teacher";
-    }
-
     @GetMapping("/admin/classrooms")
     public String listClassrooms(Model model) {
         return "redirect:/users/teacher";
