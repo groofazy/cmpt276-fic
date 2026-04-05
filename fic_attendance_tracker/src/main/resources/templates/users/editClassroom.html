@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Course - FIC Attendance Tracker</title>
+    <title>Edit Classroom - FIC Attendance Tracker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -17,8 +17,8 @@
             <ul class="sidebar-nav">
                 <li><a th:href="@{/admin/dashboard}"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
                 <li><a th:href="@{/admin/students}"><i class="fas fa-users"></i><span>Student Management</span></a></li>
-                <li><a th:href="@{/admin/professors}" class="active"><i class="fas fa-chalkboard-user"></i><span>Professor Management</span></a></li>
-                <li><a th:href="@{/admin/classrooms}"><i class="fas fa-door-open"></i><span>Classroom Management</span></a></li>
+                <li><a th:href="@{/admin/professors}"><i class="fas fa-chalkboard-user"></i><span>Professor Management</span></a></li>
+                <li><a th:href="@{/admin/classrooms}" class="active"><i class="fas fa-door-open"></i><span>Classroom Management</span></a></li>
                 <li><a th:href="@{/admin/reports}"><i class="fas fa-file-chart-line"></i><span>Attendance Reports</span></a></li>
                 <li><a th:href="@{/admin/settings}"><i class="fas fa-cog"></i><span>Settings</span></a></li>
                 <li style="margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.2);"><a th:href="@{/logout}"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
@@ -28,15 +28,16 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="topbar">
-                <h2>Add New Course</h2>
+                <h2>Edit Classroom</h2>
             </div>
 
             <div class="content">
                 <div class="section">
-                    <form th:action="@{/courses/add}" method="post" class="form-container">
+                    <form th:action="@{/admin/classrooms/edit/{id}(id=${classroom.mapId})}" method="post" class="form-container">
                         <div class="mb-3">
                             <label for="subject">Course Subject:</label>
                             <select name="subject" class="form-select" id="subject">
+                                <option value="" disabled selected>Select a subject...</option>
                                 <option value="ACMA">ACMA</option>  
                                 <option value="ALS">ALS</option>
                                 <option value="APMA">APMA</option>
@@ -157,20 +158,23 @@
                         
                         <div class="mb-3">
                             <label for="number">Course Number:</label>
-                            <input type="text" 
-                                name="number" 
-                                id="number"
-                                class="form-control form-control-lg" 
-                                required 
-                                maxlength="3" 
-                                pattern="\d{1,3}" 
-                                title="Invalid course number"
-                                oninvalid="this.setCustomValidity('Invalid course number')"
-                                oninput="this.setCustomValidity('')">
+                            <select name="number" id="number" class="form-select form-control-lg" required>
+                                <option value="">Select a subject first...</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="lectureDate" class="form-label">Lecture Date:</label>
+                            <input type="date" name="lectureDate" id="lectureDate" class="form-control" th:value="${#temporals.format(classroom.lectureDate, 'yyyy-MM-dd')}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="numRow" class="form-label">Number of Rows:</label>
+                            <input type="number" name="numRow" id="numRow" class="form-control" min="1" required>
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Add Course</button>
+                            <button type="submit" class="btn btn-primary">Update Classroom</button>
                             <a th:href="@{/admin/dashboard}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
@@ -178,5 +182,7 @@
             </div>
         </div>
     </div>
+
+    <script th:src="@{/js/create.js}"></script>
 </body>
 </html>

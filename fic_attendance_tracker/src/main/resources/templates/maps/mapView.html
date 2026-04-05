@@ -17,8 +17,6 @@
 
                 <h2 class="text-center mt-4 mb-3" th:text="|${classMap.className} (${classMap.lectureDate})|"></h2>
 
-                
-
                 <!--Student Passcode Entry-->
                 <div class="text-center mb-3" th:if="${sessionUser.role.name() == 'STUDENT' and !verified}">
                     <form action="/attendance/mark" method = "post">
@@ -73,6 +71,15 @@
                     <button id="confirm-btn" class="btn btn-primary btn-lg" style="display:none">
                         Confirm Seat
                     </button>
+                </div>
+
+                <div class="text-center mt-3" th:if="${sessionUser.role.name() == 'STUDENT' and verified and hasSeat}">
+                    <form th:action="@{/seat/cancel}" method="post">
+                        <input type="hidden" name="mapId" th:value="${classMap.mapId}">
+                        <button type="submit" class="btn btn-danger">
+                            Cancel My Confirmed Seat
+                        </button>
+                    </form>
                 </div>
 
             </div>

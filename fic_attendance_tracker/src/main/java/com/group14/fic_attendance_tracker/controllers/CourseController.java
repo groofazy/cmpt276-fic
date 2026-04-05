@@ -56,17 +56,58 @@ public class CourseController {
     }
     
     @GetMapping("/courses/edit/{id}")
-    public String showEditCoursesForm(@PathVariable Long id, Model model) {
-        return "redirect:/admin/dashboard";
+    public String showEditCoursesForm(@PathVariable int id, HttpSession session, Model model) {
+        User user = (User) session.getAttribute("session_user");
+        if (user == null || user.getRole() != User.RoleType.ADMIN) {
+            return "redirect:/login";
+        }
+        
+        Course course = courseRepo.findByCourseId(id);
+        if (course == null) {
+            return "redirect:/admin/dashboard";
+        }
+        
+        model.addAttribute("course", course);
+        model.addAttribute("user", user);
+        return "users/editCourse";
     }
-    
+
     @PostMapping("/courses/edit/{id}")
-    public String editCourses(@PathVariable Long id, @RequestParam Map<String, String> formData) {
+    public String editCourse(@PathVariable int id, @RequestParam Map<String, String> formData, HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
+        if (user == null || user.getRole() != User.RoleType.ADMIN) {
+            return "redirect:/login";
+        }
+        
+        Course course = courseRepo.findByCourseId(id);
+        if (course == null) {
+            return "redirect:/admin/dashboard";
+        }
+        
+        String subject = formData.get("subject");
+        Course.CourseSubject courseSubject = Course.CourseSubject.valueOf(subject);
+        String number = formData.get("number");
+        String courseNum = String.format("%03d", Integer.parseInt(number));
+        course.setCourseSubject(courseSubject);
+        course.setCourseNum(courseNum);
+        
+        courseRepo.save(course);
+        
         return "redirect:/admin/dashboard";
     }
-    
+
     @PostMapping("/courses/delete/{id}")
-    public String deleteCourses(@PathVariable Long id) {
+    public String deleteClassroom(@PathVariable int id, HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
+        if (user == null || user.getRole() != User.RoleType.ADMIN) {
+            return "redirect:/login";
+        }
+        
+        Course course = courseRepo.findByCourseId(id);
+        if (course != null) {
+            courseRepo.deleteById(id);
+        }
+        
         return "redirect:/admin/dashboard";
     }
 

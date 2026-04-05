@@ -84,6 +84,11 @@ public class ClassMapsController {
         }
 
         model.addAttribute("verified", verified);
+
+        // checks if student has a confirmed saved seat. if so, it renders the cancel my seat button in the mapView.html
+        boolean hasSeat = seatRepo.findByMapIdAndStudentId(id, user.getUid()) != null;
+        model.addAttribute("hasSeat", hasSeat);
+
         return "maps/mapView";
     }
 
