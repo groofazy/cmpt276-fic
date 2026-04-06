@@ -1166,3 +1166,217 @@ body > .container:first-of-type > .section:nth-of-type(4) button:hover {
     font-size: 0.9rem;
     transform: rotate(30deg);
 }
+
+/* ==================== STUDENT DASHBOARD CALENDAR ==================== */
+
+.student-calendar-card {
+    border-radius: 16px !important;
+}
+
+#calendar {
+    width: 100%;
+}
+
+.fc {
+    font-size: 0.95rem;
+}
+
+/* ===== Toolbar ===== */
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1.25rem;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.fc-toolbar-title {
+    font-weight: 700;
+    color: #1f2937;
+}
+
+/* ===== Buttons ===== */
+.fc-button {
+    border-radius: 8px !important;
+    padding: 0.45rem 0.8rem !important;
+    font-weight: 600 !important;
+}
+
+.fc .fc-button-primary {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    box-shadow: none !important;
+}
+
+.fc .fc-button-primary:hover {
+    background-color: #0b5ed7 !important;
+    border-color: #0b5ed7 !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+    background-color: #0a58ca !important;
+    border-color: #0a58ca !important;
+}
+
+/* ===== Event Base Style ===== */
+.fc-daygrid-event,
+.fc-timegrid-event {
+    border-radius: 8px !important;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #0d6efd !important;
+    background-color: #f8fbff !important;
+    color: #0d6efd !important;
+    opacity: 1 !important;
+    overflow: hidden !important;
+}
+
+.fc-daygrid-event:hover,
+.fc-timegrid-event:hover {
+    transform: scale(1.02);
+    background-color: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+.fc-daygrid-event:hover *,
+.fc-timegrid-event:hover * {
+    color: #ffffff !important;
+}
+
+/* ===== Text Content Wrapper ===== */
+.student-fc-event-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.student-fc-event-title {
+    font-weight: 700;
+    width: 100%;
+}
+
+/* ===== MONTH VIEW ===== */
+.fc-dayGridMonth-view .student-fc-event-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 6px;
+}
+
+.fc-dayGridMonth-view .student-fc-event-title {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== WEEK VIEW ===== */
+.fc-timeGridWeek-view .fc-timegrid-event-harness {
+    margin-right: 0 !important;
+}
+
+.fc-timeGridWeek-view .fc-timegrid-event {
+    min-width: 100% !important;
+}
+
+.fc-timeGridWeek-view .fc-timegrid-event .fc-event-main {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 4px;
+    overflow: hidden;
+}
+
+.fc-timeGridWeek-view .student-fc-event-content {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    line-height: 1.05;
+    text-align: center;
+}
+
+.fc-timeGridWeek-view .student-fc-event-title {
+    font-size: clamp(0.7rem, 0.9vw, 1rem);
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    line-height: 1.05;
+}
+
+.fc-timeGridWeek-view .student-fc-event-time {
+    display: none;
+}
+
+/* ===== WEEK VIEW ===== */
+.fc-timeGridWeek-view .fc-timegrid-event,
+.fc-timeGridWeek-view .fc-timegrid-event .fc-event-main,
+.fc-timeGridWeek-view .fc-timegrid-event .fc-event-main-frame,
+.fc-timeGridWeek-view .fc-timegrid-event .fc-event-title-container,
+.fc-timeGridWeek-view .fc-timegrid-event .fc-event-title,
+.fc-timeGridWeek-view .fc-timegrid-event .student-fc-event-content,
+.fc-timeGridWeek-view .fc-timegrid-event .student-fc-event-title {
+    color: #0d6efd !important;
+    opacity: 1 !important;
+}
+
+.fc-timeGridWeek-view .fc-timegrid-event:hover,
+.fc-timeGridWeek-view .fc-timegrid-event:hover .fc-event-main,
+.fc-timeGridWeek-view .fc-timegrid-event:hover .fc-event-main-frame,
+.fc-timeGridWeek-view .fc-timegrid-event:hover .fc-event-title-container,
+.fc-timeGridWeek-view .fc-timegrid-event:hover .fc-event-title,
+.fc-timeGridWeek-view .fc-timegrid-event:hover .student-fc-event-content,
+.fc-timeGridWeek-view .fc-timegrid-event:hover .student-fc-event-title {
+    color: #ffffff !important;
+}
+
+/* ===== LIST VIEW ===== */
+.fc-list-event:hover td {
+    background-color: #f0f6ff !important;
+}
+
+/* ===== GRID COLORS ===== */
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+    border-color: #dee2e6 !important;
+}
+
+.fc-col-header-cell-cushion,
+.fc-daygrid-day-number,
+.fc-list-day-text,
+.fc-list-day-side-text {
+    color: #1f2937;
+    text-decoration: none !important;
+    font-weight: 600;
+}
+
+/* ===== TIME AXIS ===== */
+.fc-timegrid-slot-label-cushion,
+.fc-timegrid-axis-cushion {
+    color: #1f2937;
+    font-weight: 500;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .fc .fc-toolbar.fc-header-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .fc-button {
+        font-size: 0.85rem !important;
+    }
+}
