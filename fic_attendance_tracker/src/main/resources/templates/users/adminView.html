@@ -35,6 +35,12 @@
                     </a>
                 </li>
                 <li>
+                    <a th:href="@{/admin/courses}">
+                        <i class="fas fa-book"></i>
+                        <span>Course Management</span>
+                    </a>
+                </li>
+                <li>
                     <a th:href="@{/admin/classrooms}">
                         <i class="fas fa-door-open"></i>
                         <span>Classroom Management</span>
@@ -165,6 +171,61 @@
     </div>
 </div>
 
+                <!-- Course Management Section -->
+                <div class="section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-book"></i> Course Management</h3>
+                        <a th:href="@{/courses/add}" class="btn-add">
+                            <i class="fas fa-plus"></i> Add Course
+                        </a>
+                    </div>
+
+                    <div th:if="${courses != null and courses.size() > 0}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Course ID</th>
+                                    <th>Admin</th>
+                                    <th>Course Subject</th>
+                                    <th>Course Number</th>
+                                    <th>Course Times</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="course : ${courses}">
+                                    <td th:text="${course.courseId}"></td>
+                                    <td th:text="${course.adminId}"></td>
+                                    <td th:text="${course.courseSubject}"></td>
+                                    <td th:text="${course.courseNum}"></td>
+                                    <td>
+                                        <div th:each="time : ${course.courseTimes}" th:text="${time}"></div>
+                                        <div th:if="${course.courseTimes == null or course.courseTimes.isEmpty()}" class="text-muted" style="font-size: 0.85rem;">
+                                            No times set
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a th:href="@{/courses/edit/{id}(id=${course.courseId})}" class="btn-sm btn-edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form th:action="@{/courses/delete/{id}(id=${course.courseId})}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                                <button type="submit" class="btn-sm btn-delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${courses == null or courses.size() == 0}" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No courses found. <a th:href="@{/courses/add}">Add a new course</a></p>
+                    </div>
+                </div>
+
                 <!-- Classroom Management Section -->
                <div class="section">
     <div class="section-header">
@@ -181,6 +242,7 @@
                 <tr>
                     <th>Classroom ID</th>
                     <th>Class Name</th>
+                    <th>Class Time</th>
                     <th>Lecture Date</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -190,6 +252,7 @@
                 <tr th:each="classroom : ${classrooms}">
                     <td th:text="${classroom.mapId}"></td>
                     <td th:text="${classroom.className}"></td>
+                    <td th:text="${classroom.classTime}"></td>
                     <td th:text="${#temporals.format(classroom.lectureDate, 'MMM dd, yyyy')}"></td>
                     <td>
                         <span th:if="${classroom.active != null and classroom.active}" class="badge bg-success">Active</span>

@@ -3,6 +3,7 @@ package com.group14.fic_attendance_tracker.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,6 @@ import com.group14.fic_attendance_tracker.models.User;
 import com.group14.fic_attendance_tracker.models.ClassMap;
 import com.group14.fic_attendance_tracker.models.ClassMapRepository;
 import com.group14.fic_attendance_tracker.models.SeatRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Controller
 public class ClassMapsController {
@@ -39,8 +39,9 @@ public class ClassMapsController {
     }
 
     @PostMapping("/maps/create")
-    public String saveMap(
-            @RequestParam("className") String className,
+    public String saveMap(@RequestParam("subject") String subject,
+            @RequestParam("number") String number,
+            @RequestParam("time") String classTime,
             @RequestParam("lectureDate") LocalDate lectureDate,
             @RequestParam("numRow") int numRow,
             HttpSession session,
@@ -52,7 +53,8 @@ public class ClassMapsController {
         }
 
         int creatorId = user.getUid();
-        mapRepo.save(new ClassMap(creatorId, className, lectureDate, numRow));
+        String className = subject + " " + number;
+        mapRepo.save(new ClassMap(creatorId, className, classTime, lectureDate, numRow));
         response.setStatus(201);
         return "redirect:/users/teacher";
     }

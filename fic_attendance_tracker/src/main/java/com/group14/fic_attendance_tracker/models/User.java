@@ -1,6 +1,9 @@
 package com.group14.fic_attendance_tracker.models;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import jakarta.persistence.*;
 
@@ -23,6 +26,9 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
+    @Column(name="course_enrolled")
+    private String courseEnrolled;
+
     public User() {
 
     }
@@ -30,6 +36,7 @@ public class User implements Serializable {
         this.name = name;
         this.password = password;
         this.role = role;
+        this.courseEnrolled = "";
     }
     public String getName() {
         return name;
@@ -60,5 +67,19 @@ public class User implements Serializable {
     }
     public void setRole(RoleType role) {
         this.role = role;
+    }
+
+    public List<String> getCourseEnrolled() {
+        if (this.courseEnrolled == null || this.courseEnrolled.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(Arrays.asList(this.courseEnrolled.split(",")));
+    }
+    public void setCourseEnrolled(List<String> enrolledCourses) {
+        if (enrolledCourses == null || enrolledCourses.isEmpty()) {
+            this.courseEnrolled = "";
+        } else {
+            this.courseEnrolled = String.join(",", enrolledCourses);
+        }
     }
 }
