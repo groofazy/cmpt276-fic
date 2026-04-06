@@ -29,21 +29,25 @@
                 </div>
 
                 <div class="text-center">
-                    <p class="text-success" th:if="${success}" th:text="${success}"></p>
                     <p class="text-danger" th:if="${error}" th:text="${error}"></p>
                 </div>
 
                 <!-- Instruction Text -->
-                <p id="instruction-text" class="text-center instruction-text"
+                <p id="instruction-text" class="text-center text-success instruction-text"
                    th:if="${sessionUser.role.name() == 'STUDENT' and verified}">
-                    Please click on a seat to select
+                    Please select your seat to mark attendance.
                 </p>
 
-                <div class="text-center fw-bold classroom-front">FRONT OF CLASSROOM</div>
+
 
                 <!-- Seat Grid -->
                 <div class="seating-grid"
                      th:if="${sessionUser.role.name() != 'STUDENT' or verified}">
+
+                    <div class="text-center fw-bold classroom-front">
+                        FRONT OF CLASSROOM
+                    </div> 
+
                     <div class="seat-row" th:each="i : ${#numbers.sequence(1, classMap.numRow)}">
 
                         <div class="row-label" th:text="${i}"></div>
@@ -108,6 +112,6 @@
          th:data-user-role="${sessionUser != null ? sessionUser.role.name() : ''}">
     </div>
 
-    <script th:src="@{/js/script.js}"></script>
+    <script th:src="@{/js/map.js}"></script>
 </body>
 </html>

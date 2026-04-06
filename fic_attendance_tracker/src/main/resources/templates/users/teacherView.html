@@ -40,6 +40,7 @@
     <a th:href="@{/maps/view/{id}(id=${map.mapId})}">
         <button type="button" style="cursor: pointer; width:100%; padding:10px; border-radius:8px;">
             <strong th:text="${map.className}">Class Name</strong><br>
+            <span th:text="${map.classTime}">Class Time</span><br>
             <span th:text="${map.lectureDate}">Lecture Date</span>
         </button>
     </a>
