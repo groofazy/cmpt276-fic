@@ -57,11 +57,60 @@ public class ClassMapsController {
         return "redirect:/users/teacher";
     }
 
+    @GetMapping("/student/passcode/{id}")
+    public String showStudentPasscode(@PathVariable int id, Model model, HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null || user.getRole() != User.RoleType.STUDENT) {
+            return "users/login";
+        }
+
+        ClassMap classMap = mapRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
+
+        model.addAttribute("classMap", classMap);
+
+        return "users/studentPasscode";
+    }
+
+    @PostMapping("/student/passcode")
+    public String verifyStudentPasscode(
+            @RequestParam("mapId") int mapId,
+            @RequestParam("inputCode") String inputCode,
+            Model model,
+            HttpSession session
+    ) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null || user.getRole() != User.RoleType.STUDENT) {
+            return "users/login";
+        }
+
+        ClassMap classMap = mapRepo.findById(mapId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + mapId));
+
+        if (classMap.getPasscode() != null && classMap.getPasscode().equals(inputCode)) {
+            session.setAttribute("verified_" + mapId, true);
+            return "redirect:/maps/view/" + mapId;
+        } else {
+            model.addAttribute("classMap", classMap);
+            model.addAttribute("error", "Incorrect Password");
+            return "users/studentPasscode";
+        }
+    }
+
     @GetMapping("/maps/view/{id}")
     public String viewMap(@PathVariable int id, Model model, HttpSession session) {
         User user = (User) session.getAttribute("session_user");
         if (user == null) {
             return "users/login";
+        }
+
+        if (user.getRole() == User.RoleType.STUDENT) {
+            Boolean verified = (Boolean) session.getAttribute("verified_" + id);
+            if (verified == null || !verified) {
+                return "redirect:/student/passcode/" + id;
+            }
         }
 
         ClassMap classMap = mapRepo.findById(id)
@@ -84,14 +133,12 @@ public class ClassMapsController {
 
         model.addAttribute("verified", verified);
 
-        // checks if student has a confirmed saved seat. if so, it renders the cancel my seat button in the mapView.html
         boolean hasSeat = seatRepo.findByMapIdAndStudentId(id, user.getUid()) != null;
         model.addAttribute("hasSeat", hasSeat);
 
         return "maps/mapView";
     }
 
-    //implementing generate passcode feature
     @GetMapping("/attendance/display/{id}")
     public String showAttendanceScreen(@PathVariable int id, Model model, HttpSession session) {
 
@@ -136,19 +183,16 @@ public class ClassMapsController {
 
         String targetSeatOwner = seatOwners[seatIndex];
 
-        // Someone else already owns this seat
         if (!"0".equals(targetSeatOwner) && !currentUserId.equals(targetSeatOwner)) {
             return buildMapView(model, classMap, user.getUid(), "That seat is already taken.", null);
         }
 
-        // Remove this user's old seat first so they only ever have one seat per class
         for (int i = 0; i < seatOwners.length; i++) {
             if (currentUserId.equals(seatOwners[i])) {
                 seatOwners[i] = "0";
             }
         }
 
-        // Assign the new seat to this user
         seatOwners[seatIndex] = currentUserId;
 
         classMap.setSeats(String.join(",", seatOwners));
@@ -189,7 +233,6 @@ public class ClassMapsController {
             }
         }
 
-        // Fill any missing entries safely
         for (int i = seatOwners.length; i < TOTAL_SEATS; i++) {
             seatClasses[i] = "available";
         }
@@ -242,7 +285,7 @@ public class ClassMapsController {
         ClassMap classMap = mapRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
 
-        String code = String.valueOf((int)(Math.random() * 900000) + 100000); // Generate a random 6-digit code
+        String code = String.valueOf((int)(Math.random() * 900000) + 100000);
         classMap.setPasscode(code);
         classMap.setAttendanceOpen(true);
         mapRepo.save(classMap);
@@ -267,12 +310,12 @@ public class ClassMapsController {
             classMap.getAttendanceOpen() && classMap.getPasscode() != null &&
             classMap.getPasscode().equals(inputCode)) {
             
-            session.setAttribute("verified_" + mapId, true); // Mark this student as verified for this class map
-            model.addAttribute("verified", true); // Mark the student as verified to show the seating chart
+            session.setAttribute("verified_" + mapId, true);
+            model.addAttribute("verified", true);
             model.addAttribute("success", "Please select your seat to mark attendance.");
 
             } else {
-                session.setAttribute("verified_" + mapId, false); // Ensure student is marked as not verified
+                session.setAttribute("verified_" + mapId, false);
                 model.addAttribute("verified", false);
                 model.addAttribute("error", "Invalid passcode. Please try again.");
             }
