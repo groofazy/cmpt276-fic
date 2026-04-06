@@ -15,9 +15,10 @@
                     <a th:href="@{/}" class="btn btn-secondary">Back</a> <!-- Returns back to index.html page-->
                 </div>                   
                     <h1 class="text-center mt-5 mb-4">Account Login</h1>
-                    
-                    <!-- <div th:if="${nameError}" class="text-danger small" th:text="${nameError}"></div>
-                    <div th:if="${emailError}" class="text-danger small" th:text="${emailError}"></div> -->
+
+                    <div th:if="${loginError}" class="alert alert-danger shadow-sm" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i><span th:text="${loginError}"></span>
+                    </div>
 
                     <form action="/login" method="post">
 
@@ -30,15 +31,6 @@
                             <label for="password">Password:</label>
                             <input type="password" name="password" class="form-control form-control-lg" placeholder="Password">
                         </div>
-
-                        <!-- <div class="mb-3">
-                            <label for="role">Role:</label>
-                            <select name="role" class="form-select" id="role">
-                                <option value="STUDENT">Student</option>
-                                <option value="TEACHER">Teacher</option>
-                                <option value="ADMIN">Admin</option>
-                            </select>
-                        </div> -->
 
                         <div class="d-grid gap-2">
                             <input class="btn btn-primary" type="submit" value="LOG INTO ACCOUNT" />

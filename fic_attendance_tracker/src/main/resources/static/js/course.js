@@ -99,6 +99,31 @@ document.addEventListener('DOMContentLoaded', () => {
                             displayCourseTimes.innerHTML = times.map(t => `<div class="mb-1"><i class="far fa-clock me-2 text-muted"></i>${t}</div>`).join('');
                         }
                         
+                        // Check if student have enrolled on that course or not
+                        const enrollBtn = document.getElementById('btn-enroll');
+                        if (enrollBtn) {
+
+                            // Find all titles of courses the student is currently enrolled in
+                            const enrolledTitles = document.querySelectorAll('.enrolled-course-title');
+                            
+                            // Check if the searched course matches any of their enrolled courses
+                            const isAlreadyEnrolled = Array.from(enrolledTitles).some(
+                                title => title.textContent.trim() === `${subject} ${number}`
+                            );
+
+                            if (isAlreadyEnrolled) {
+                                // Turn button gray and disable it
+                                enrollBtn.textContent = 'Already Enrolled';
+                                enrollBtn.className = 'btn btn-secondary';
+                                enrollBtn.disabled = true;
+                            } else {
+                                // Active blue button
+                                enrollBtn.textContent = 'Enrolled Class'; 
+                                enrollBtn.className = 'btn-course'; 
+                                enrollBtn.disabled = false;
+                            }
+                        }
+                        
                         courseInfoContainer.style.display = 'block';
                     }
                 })
@@ -106,6 +131,59 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Error fetching course times:', error);
                     timeSelect.innerHTML = '<option value="">Error loading times</option>';
                 });
+        });
+    }
+
+    // Auto-fill Lecture Date based on Course Time
+    const lectureDateInput = document.querySelector('input[name="lectureDate"]');
+
+    if (timeSelect && lectureDateInput) {
+        timeSelect.addEventListener('change', function() {
+            const selectedTime = this.value;
+            if (!selectedTime) return;
+
+            // Extract the date
+            const dayName = selectedTime.split(' ')[0];
+
+            // Map day as numeric value
+            const daysMap = {
+                'Sunday': 0, 
+                'Monday': 1, 
+                'Tuesday': 2, 
+                'Wednesday': 3,
+                'Thursday': 4, 
+                'Friday': 5, 
+                'Saturday': 6
+            };
+
+            const targetDayNum = daysMap[dayName];
+            if (targetDayNum === undefined){
+                return; 
+            }
+
+            // Find current date as numeric
+            const today = new Date();
+            const currentDayNum = today.getDay();
+
+            // Calculate how many days to add
+            let daysToAdd = targetDayNum - currentDayNum;
+
+            // If the day has already passed this week, push it to next week
+            if (daysToAdd < 0) {
+                daysToAdd += 7;
+            }
+
+            // Generate the final target date
+            const targetDate = new Date(today);
+            targetDate.setDate(today.getDate() + daysToAdd);
+
+            // Format as YYYY-MM-DD
+            const yyyy = targetDate.getFullYear();
+            const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(targetDate.getDate()).padStart(2, '0');
+
+            // Set the value of the input box
+            lectureDateInput.value = `${yyyy}-${mm}-${dd}`;
         });
     }
 
@@ -117,52 +195,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeList = document.getElementById('time-list');
     const hiddenContainer = document.getElementById('hidden-times-container');
 
-    // Open & Close button 
-    btnOpen.addEventListener('click', () => modal.style.display = 'flex');
-    btnClose.addEventListener('click', () => modal.style.display = 'none');
+    if(modal){
+        // Open & Close button 
+        btnOpen.addEventListener('click', () => modal.style.display = 'flex');
+        btnClose.addEventListener('click', () => modal.style.display = 'none');
 
-    // Save Time Logic
-    btnSave.addEventListener('click', () => {
-        
-        // Get selected day
-        const selectedDay = document.querySelector('input[name="day"]:checked');
-        if (!selectedDay) {
-            alert("Please select a day.");
-            return;
-        }
+        // Save Time Logic
+        btnSave.addEventListener('click', () => {
+            
+            // Get selected day
+            const selectedDay = document.querySelector('input[name="day"]:checked');
+            if (!selectedDay) {
+                alert("Please select a day.");
+                return;
+            }
 
-        // Get times directly from the dropdowns
-        const start = `${document.getElementById('start-hh').value}:${document.getElementById('start-mm').value}`;
-        const end = `${document.getElementById('end-hh').value}:${document.getElementById('end-mm').value}`;
-        
-        // Format the date & time
-        const formattedDate = `${selectedDay.value} ${start} - ${end}`;
+            // Get times directly from the dropdowns
+            const start = `${document.getElementById('start-hh').value}:${document.getElementById('start-mm').value}`;
+            const end = `${document.getElementById('end-hh').value}:${document.getElementById('end-mm').value}`;
+            
+            // Format the date & time
+            const formattedDate = `${selectedDay.value} ${start} - ${end}`;
 
-        // Create a UI element to show the user
-        const timeBadge = document.createElement('div');
-        timeBadge.className = 'alert alert-info py-2 px-3 mb-0 d-flex justify-content-between align-items-center';
-        timeBadge.innerHTML = `
-            <span><i class="far fa-clock me-2"></i> ${formattedDate}</span>
-            <button type="button" class="btn-close" style="font-size: 0.8rem;"></button>
-        `;
+            // Create a UI element to show the user
+            const timeBadge = document.createElement('div');
+            timeBadge.className = 'alert alert-info py-2 px-3 mb-0 d-flex justify-content-between align-items-center';
+            timeBadge.innerHTML = `
+                <span><i class="far fa-clock me-2"></i> ${formattedDate}</span>
+                <button type="button" class="btn-close" style="font-size: 0.8rem;"></button>
+            `;
 
-        // Create a hidden input to send to Spring Boot
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'courseTimes';
-        hiddenInput.value = formattedDate;
+            // Create a hidden input to send to Spring Boot
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'courseTimes';
+            hiddenInput.value = formattedDate;
 
-        // Handle delete button
-        timeBadge.querySelector('.btn-close').addEventListener('click', () => {
-            timeBadge.remove();
-            hiddenInput.remove();
+            // Handle delete button
+            timeBadge.querySelector('.btn-close').addEventListener('click', () => {
+                timeBadge.remove();
+                hiddenInput.remove();
+            });
+
+            timeList.appendChild(timeBadge);
+            hiddenContainer.appendChild(hiddenInput);
+
+            // Reset form and close modal
+            selectedDay.checked = false;
+            modal.style.display = 'none';
         });
-
-        timeList.appendChild(timeBadge);
-        hiddenContainer.appendChild(hiddenInput);
-
-        // Reset form and close modal
-        selectedDay.checked = false;
-        modal.style.display = 'none';
-    });
+    }
 });

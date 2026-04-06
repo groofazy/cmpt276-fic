@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -143,7 +144,8 @@ public class UsersController {
     @PostMapping("/users/student/enroll")
     public String enrollCourse(@RequestParam("subject") String subject, 
                                @RequestParam("number") String number, 
-                               HttpSession session) {
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
         
         User sessionUser = (User) session.getAttribute("session_user");
         if (sessionUser == null || sessionUser.getRole() != User.RoleType.STUDENT) {
@@ -171,10 +173,50 @@ public class UsersController {
                     user.setCourseEnrolled(enrolledCourses);
                     userRepo.save(user);
                     session.setAttribute("session_user", user);
+
+                    redirectAttributes.addFlashAttribute("successMessage", "Successfully enrolled in " + subject + " " + number + "!");
+                } else {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Enrollment Failed: You cannot register for more than 6 courses.");
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error enrolling in course: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while trying to enroll.");
+        }
+
+        return "redirect:/users/student";
+    }
+
+    @PostMapping("/users/student/drop")
+    public String dropCourse(@RequestParam("courseId") String courseId, 
+                             HttpSession session) {
+        
+        User sessionUser = (User) session.getAttribute("session_user");
+        if (sessionUser == null || sessionUser.getRole() != User.RoleType.STUDENT) {
+            return "redirect:/login";
+        }
+
+        User user = userRepo.findById(sessionUser.getUid()).orElse(null);
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            // Get the current list of enrolled courses
+            List<String> enrolledCourses = user.getCourseEnrolled();
+
+            // If the course is in the list, remove it
+            if (enrolledCourses.contains(courseId)) {
+                enrolledCourses.remove(courseId);
+                
+                // Save the updated list back to the user
+                user.setCourseEnrolled(enrolledCourses);
+                userRepo.save(user); 
+                
+                // Update the active session
+                session.setAttribute("session_user", user);
+            }
+        } catch (Exception e) {
+            System.out.println("Error dropping course: " + e.getMessage());
         }
 
         return "redirect:/users/student";
@@ -286,6 +328,7 @@ public class UsersController {
         String pwd = formData.get("password");
         List<User> userList = userRepo.findByNameAndPassword(name, pwd);
         if (userList.isEmpty()) {
+            model.addAttribute("loginError", "Invalid username or password. Please try again.");
             return "users/login";
         }
         else {

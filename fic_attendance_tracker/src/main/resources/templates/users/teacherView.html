@@ -10,7 +10,6 @@
 </head>
 
 <body>
-
     <h1> FIC Attendance Tracker </h1>
     <h2> Professor Dashboard </h2>
 
@@ -21,99 +20,86 @@
     <div class="container">
         <div class="section">
            <h3> Attendance Controls </h3>
-
            <div class="controls">
+                <form th:action="@{/maps/create}" method="get">
+                    <button type="submit" style="cursor: pointer;"> Start Attendance - Create New Class </button>
+                </form>
+            </div>
+        </div>
 
-            <form th:action="@{/maps/create}" method="get">
-              <button type="submit" style="cursor: pointer;"> Start Attendance - Create New Class </button>
-            </form>
+        <!-- Classroom Map Placeholder -->
+        <div class="d-flex flex-wrap gap-4 mt-3 mb-4">
+            <div th:each="map : ${maps}" 
+            style="border:1px solid #ccc; border-radius:10px; padding:15px; width:260px; background-color:#f9f9f9;">
 
-            
+                <!-- CLASS BUTTON -->
+                <a th:href="@{/maps/view/{id}(id=${map.mapId})}">
+                    <button type="button" style="cursor: pointer; width:100%; padding:10px; border-radius:8px;">
+                        <strong th:text="${map.className}">Class Name</strong><br>
+                        <span th:text="${map.classTime}">Class Time</span><br>
+                        <span th:text="${map.lectureDate}">Lecture Date</span>
+                    </button>
+                </a>
+
+                
+                <form th:action="@{/attendance/start/{id}(id=${map.mapId})}" method="post">
+                    <button type="submit" 
+                            style="margin-top:10px; width:100%; background-color:green; color:white; border:none; padding:8px; border-radius:6px;">
+                        Generate Passcode
+                    </button>
+                </form>
+ 
+                <div th:if="${map.passcode != null}" style="margin-top:8px; text-align:center;">
+                    <span style="font-weight:bold;">Passcode:</span>
+                    <span th:text="${map.passcode}" style="color:blue;"></span>
+                </div>
+
+                <!-- END ATTENDANCE -->
+                <form th:action="@{/attendance/end/{id}(id=${map.mapId})}" method="post">
+                    <button type="submit" 
+                            style="margin-top:10px; width:100%; background-color:red; color:white; border:none; padding:8px; border-radius:6px;">
+                        End Attendance
+                    </button>
+                </form>
+
+                <!-- DELETE CLASS -->
+                <form th:action="@{/maps/delete/{id}(id=${map.mapId})}" method="post"
+                    onsubmit="return confirm('Are you sure you want to delete this class? This action cannot be undone.')">
+                    <button type="submit"
+                            style="margin-top:10px; width:100%; background-color:gray; color:white; border:none; padding:8px; border-radius:6px;">
+                        Delete Class
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3> Current Attendance </h3>
+            <table border="1">
+                <tr>
+                    <th>Student Name</th>
+                    <th>Attendance Status</th>
+                </tr>
+
+                <tr th:if="${presentStudents == null || #lists.isEmpty(presentStudents)}">
+                    <td colspan="2">No students marked present</td>
+                </tr>
+
+                <tr th:each="student : ${presentStudents}">
+                    <td th:text="${student.name}"></td>
+                    <td><span style="color: green; font-weight: bold;">Present</span></td>
+                </tr>
+
+            </table>
+        </div>
+
+        <div class="section mt-4 text-center">
+            <a th:href="@{/logout}">
+                <button class="btn btn-outline-danger px-4 py-2">
+                    Logout
+                </button>
+            </a>
         </div>
     </div>
-
-    <!-- Classroom Map Placeholder -->
-    <div th:each="map : ${maps}" 
-     style="border:1px solid #ccc; border-radius:10px; padding:15px; width:260px; background-color:#f9f9f9;">
-
-    <!-- CLASS BUTTON -->
-    <a th:href="@{/maps/view/{id}(id=${map.mapId})}">
-        <button type="button" style="cursor: pointer; width:100%; padding:10px; border-radius:8px;">
-            <strong th:text="${map.className}">Class Name</strong><br>
-            <span th:text="${map.classTime}">Class Time</span><br>
-            <span th:text="${map.lectureDate}">Lecture Date</span>
-        </button>
-    </a>
-
-    
-    <form th:action="@{/attendance/start/{id}(id=${map.mapId})}" method="post">
-        <button type="submit" 
-                style="margin-top:10px; width:100%; background-color:green; color:white; border:none; padding:8px; border-radius:6px;">
-            Generate Passcode
-        </button>
-    </form>
-
-    
-    <div th:if="${map.passcode != null}" style="margin-top:8px; text-align:center;">
-        <span style="font-weight:bold;">Passcode:</span>
-        <span th:text="${map.passcode}" style="color:blue;"></span>
-    </div>
-
-    <!-- END ATTENDANCE -->
-    <form th:action="@{/attendance/end/{id}(id=${map.mapId})}" method="post">
-        <button type="submit" 
-                style="margin-top:10px; width:100%; background-color:red; color:white; border:none; padding:8px; border-radius:6px;">
-            End Attendance
-        </button>
-    </form>
-
-    <!-- DELETE CLASS -->
-    <form th:action="@{/maps/delete/{id}(id=${map.mapId})}" method="post"
-          onsubmit="return confirm('Are you sure you want to delete this class? This action cannot be undone.')">
-        <button type="submit"
-                style="margin-top:10px; width:100%; background-color:gray; color:white; border:none; padding:8px; border-radius:6px;">
-            Delete Class
-        </button>
-    </form>
-
-    </div>
-    </div>
-    </div>
-
-    <div class="section">
-
-       <h3> Current Attendance </h3>
-       <table border="1">
-         <tr>
-            <th>Student Name</th>
-            <th>Attendance Status</th>
-         </tr>
-
-         <tr th:if="${presentStudents == null || #lists.isEmpty(presentStudents)}">
-         <td colspan="2">No students marked present</td>
-         </tr>
-
-         <tr th:each="student : ${presentStudents}">
-         
-         <td th:text="${student.name}"></td>
-         <td><span style="color: green; font-weight: bold;">Present</span></td>
-         </tr>
-
-
-        </table>
-    </div>
-
-    <div class="section mt-4 text-center">
-
-    <a th:href="@{/logout}">
-        <button class="btn btn-outline-danger px-4 py-2">
-            Logout
-        </button>
-    </a>
-
-    </div>
-
-</div>
-
 </body>
 </html>
