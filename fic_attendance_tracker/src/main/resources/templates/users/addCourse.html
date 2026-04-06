@@ -8,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body>
+<body th:attr="data-user-role=${user != null ? user.role : ''}">
     <div class="wrapper">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
@@ -36,6 +36,11 @@
             <div class="content">
                 <div class="section">
                     <form th:action="@{/courses/add}" method="post" class="form-container">
+                        <div id="course-times-error"
+                            class="alert alert-danger"
+                            th:text="${courseTimesError}"
+                            th:style="${courseTimesError != null} ? 'display:block;' : 'display:none;'">
+                        </div>
                         <div class="mb-3">
                             <label for="department-select">Department:</label>
                             <select name="subject" class="form-select" id="department-select" required>
@@ -127,6 +132,6 @@
         </div>
     </div>
 
-    <script th:src="@{/js/course.js}"></script>
+    <script th:src="@{/js/addCourse.js}"></script>
 </body>
 </html>

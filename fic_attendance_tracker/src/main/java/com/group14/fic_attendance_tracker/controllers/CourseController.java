@@ -1,6 +1,7 @@
 package com.group14.fic_attendance_tracker.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +28,13 @@ public class CourseController {
     private CourseRepository courseRepo;
 
     @GetMapping("/courses/add")
-    public String showAddCoursesForm(HttpSession session) {
+    public String showAddCoursesForm(HttpSession session, Model model) {
         User user = (User) session.getAttribute("session_user");
         if (user == null || user.getRole() != User.RoleType.ADMIN) {
             return "users/login";
         }
 
+        model.addAttribute("user", user);
         return "users/addCourse";
     }
     
@@ -41,7 +43,8 @@ public class CourseController {
             @RequestParam("number") String number,
             @RequestParam(value = "courseTimes", required = false) List<String> courseTimes,
             HttpSession session,
-            HttpServletResponse response
+            HttpServletResponse response,
+            RedirectAttributes redirectAttributes
     ) {
         User user = (User) session.getAttribute("session_user");
         if (user == null || user.getRole() != User.RoleType.ADMIN) {
@@ -50,6 +53,11 @@ public class CourseController {
 
         if (courseTimes == null) {
             courseTimes = new ArrayList<>();
+        }
+
+        if (courseTimes.isEmpty()) {
+            redirectAttributes.addFlashAttribute("courseTimesError", "Add at least one course time before submitting.");
+            return "redirect:/courses/add";
         }
 
         int adminId = user.getUid();
