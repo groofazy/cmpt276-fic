@@ -139,4 +139,23 @@ public class CourseController {
             return List.of(); 
         }
     }
+
+    @GetMapping("/courses/times")
+    @ResponseBody
+    public List<String> getCourseTimes(@RequestParam("subject") String subject, @RequestParam("number") String number) {
+        try {
+            Course.CourseSubject courseSubject = Course.CourseSubject.valueOf(subject);
+            
+            // Find the specific course using the repository method you already have
+            Course course = courseRepo.findBySubjectAndCourseNum(courseSubject, number);
+            
+            if (course != null && course.getCourseTimes() != null) {
+                return course.getCourseTimes();
+            }
+            return List.of(); 
+            
+        } catch (IllegalArgumentException e) {
+            return List.of(); 
+        }
+    }
 }

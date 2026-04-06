@@ -1,15 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Handling the Selected box in the Classroom Create & Edit Form
     const subjectSelect = document.getElementById('subject');
     const numberSelect = document.getElementById('number');
-    const modal = document.getElementById('time-modal');
-    const btnOpen = document.getElementById('btn-open-modal');
-    const btnClose = document.getElementById('btn-close-modal');
-    const btnSave = document.getElementById('btn-save-time');
+    const timeSelect = document.getElementById('time');
 
-    const timeList = document.getElementById('time-list');
-    const hiddenContainer = document.getElementById('hidden-times-container');
-
-    // Subject select box event handler
     if (subjectSelect && numberSelect) {
         subjectSelect.addEventListener('change', function() {
             const subject = this.value;
@@ -50,10 +44,54 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Error fetching course numbers:', error);
                     numberSelect.innerHTML = '<option value="">Error loading courses</option>';
                 });
-        });
+            
+            // Fetch the course time when having both subject and course number
+            if (timeSelect) {
+                numberSelect.addEventListener('change', function() {
+                    const subject = subjectSelect.value;
+                    const number = this.value;
+
+                    timeSelect.innerHTML = '<option value=""></option>';
+
+                    if (!subject || !number) {
+                        timeSelect.innerHTML = '<option value="">Select a subject and course number first...</option>';
+                        return;
+                    }
+
+                    // Fetch meeting times for this specific course
+                    fetch(`/courses/times?subject=${subject}&number=${number}`)
+                        .then(response => response.json())
+                        .then(times => {
+                            timeSelect.innerHTML = '';
+                            if (times.length === 0) {
+                                timeSelect.innerHTML = '<option value="">No times found</option>';
+                            } else {
+                                timeSelect.innerHTML = '<option value="" disabled selected>Select a course time</option>';
+                                times.forEach(time => {
+                                    const option = document.createElement('option');
+                                    option.value = time;
+                                    option.textContent = time;
+                                    timeSelect.appendChild(option);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching course times:', error);
+                            timeSelect.innerHTML = '<option value="">Error loading times</option>';
+                        });
+                });
+            }
+        });        
     }
 
     // Handling the Course Time Input Form Pop-Up
+    const modal = document.getElementById('time-modal');
+    const btnOpen = document.getElementById('btn-open-modal');
+    const btnClose = document.getElementById('btn-close-modal');
+    const btnSave = document.getElementById('btn-save-time');
+    const timeList = document.getElementById('time-list');
+    const hiddenContainer = document.getElementById('hidden-times-container');
+
     // Open & Close button 
     btnOpen.addEventListener('click', () => modal.style.display = 'flex');
     btnClose.addEventListener('click', () => modal.style.display = 'none');

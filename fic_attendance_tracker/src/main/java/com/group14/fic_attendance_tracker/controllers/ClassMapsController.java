@@ -41,6 +41,7 @@ public class ClassMapsController {
     @PostMapping("/maps/create")
     public String saveMap(@RequestParam("subject") String subject,
             @RequestParam("number") String number,
+            @RequestParam("time") String classTime,
             @RequestParam("lectureDate") LocalDate lectureDate,
             @RequestParam("numRow") int numRow,
             HttpSession session,
@@ -53,7 +54,7 @@ public class ClassMapsController {
 
         int creatorId = user.getUid();
         String className = subject + " " + number;
-        mapRepo.save(new ClassMap(creatorId, className, lectureDate, numRow));
+        mapRepo.save(new ClassMap(creatorId, className, classTime, lectureDate, numRow));
         response.setStatus(201);
         return "redirect:/users/teacher";
     }

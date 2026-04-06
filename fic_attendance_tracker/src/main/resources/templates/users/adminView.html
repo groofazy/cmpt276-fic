@@ -242,6 +242,7 @@
                 <tr>
                     <th>Classroom ID</th>
                     <th>Class Name</th>
+                    <th>Class Time</th>
                     <th>Lecture Date</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -251,6 +252,7 @@
                 <tr th:each="classroom : ${classrooms}">
                     <td th:text="${classroom.mapId}"></td>
                     <td th:text="${classroom.className}"></td>
+                    <td th:text="${classroom.classTime}"></td>
                     <td th:text="${#temporals.format(classroom.lectureDate, 'MMM dd, yyyy')}"></td>
                     <td>
                         <span th:if="${classroom.active != null and classroom.active}" class="badge bg-success">Active</span>

@@ -599,11 +599,13 @@ public class UsersController {
         String subject = formData.get("subject");
         String number = formData.get("number");
         String className = subject + " " + number;
+        String classTime = formData.get("time");
         String lectureDate = formData.get("lectureDate");
         int numRow = Integer.parseInt(formData.get("numRow"));
         
         ClassMap newClassroom = new ClassMap();
         newClassroom.setClassName(className);
+        newClassroom.setClassTime(classTime);
         newClassroom.setLectureDate(LocalDate.parse(lectureDate));
         newClassroom.setNumRow(numRow);
         newClassroom.setCreatorId(user.getUid());
@@ -646,7 +648,10 @@ public class UsersController {
         String subject = formData.get("subject");
         String number = formData.get("number");
         String className = subject + " " + number;
+        String classTime = formData.get("time");
+
         classroom.setClassName(className);
+        classroom.setClassTime(classTime);
         classroom.setLectureDate(LocalDate.parse(formData.get("lectureDate")));
         classroom.setNumRow(Integer.parseInt(formData.get("numRow")));
         
