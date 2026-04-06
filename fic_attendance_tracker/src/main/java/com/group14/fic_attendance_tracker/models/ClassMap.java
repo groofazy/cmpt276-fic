@@ -20,6 +20,9 @@ public class ClassMap {
     @Column(name="class_name")
     private String className;
 
+    @Column(name="class_time")
+    private String classTime;
+
     @Column(name="lecture_date")
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private LocalDate lectureDate;
@@ -45,9 +48,10 @@ public class ClassMap {
     public ClassMap() {
     }
 
-    public ClassMap(int creatorId, String className, LocalDate lectureDate, int numRow){
+    public ClassMap(int creatorId, String className, String classTime, LocalDate lectureDate, int numRow){
         this.creatorId = creatorId;
         this.className = className;
+        this.classTime = classTime;
         this.lectureDate = lectureDate;
         this.numRow = numRow;
         this.active = true;
@@ -75,6 +79,13 @@ public class ClassMap {
 
     public void setClassName(String className){
         this.className = className;
+    }
+
+    public String getClassTime() {
+        return classTime;
+    }
+    public void setClassTime(String classTime) {
+        this.classTime = classTime;
     }
 
     public LocalDate getLectureDate(){
@@ -124,6 +135,4 @@ public class ClassMap {
     public void setAttendanceOpen(Boolean attendanceOpen) {
         this.attendanceOpen = attendanceOpen;
     }
-
-   
 }
