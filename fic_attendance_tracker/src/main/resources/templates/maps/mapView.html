@@ -17,17 +17,6 @@
 
                 <h2 class="text-center mt-4 mb-3" th:text="|${classMap.className} (${classMap.lectureDate})|"></h2>
 
-                <!--Student Passcode Entry-->
-                <div class="text-center mb-3" th:if="${sessionUser.role.name() == 'STUDENT' and !verified}">
-                    <form action="/attendance/mark" method = "post">
-                        <input type="hidden" name="mapId" th:value="${classMap.mapId}">
-                        <input type="text" name="inputCode" class="form-control w-25 mx-auto mb-2"
-                                 placeholder="Enter Passcode" required>
-                        <button type="submit" class="btn btn-primary">Submit Passcode</button>
-
-                    </form>
-                </div>
-
                 <div class="text-center">
                     <p class="text-danger" th:if="${error}" th:text="${error}"></p>
                 </div>
@@ -40,7 +29,6 @@
 
 
 
-                <!-- Seat Grid -->
                 <div class="seating-grid"
                      th:if="${sessionUser.role.name() != 'STUDENT' or verified}">
 
@@ -66,7 +54,6 @@
                     </div>
                 </div>
 
-                <!-- Confirm Button -->
                 <div class="text-center mt-4" th:if="${sessionUser.role.name() == 'STUDENT' and verified}">
                     <button id="confirm-btn" class="btn btn-primary btn-lg" style="display:none">
                         Confirm Seat
@@ -86,7 +73,6 @@
         </div>
     
 
-    <!-- Confirmation Pop-Up -->
     <div id="confirm-modal" class="modal-overlay" style="display:none"
          th:if="${sessionUser.role.name() == 'STUDENT'}">
         <div class="modal-box">

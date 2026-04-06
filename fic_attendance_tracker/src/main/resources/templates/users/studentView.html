@@ -215,7 +215,7 @@
 
                     <div th:if="${maps != null and maps.size() > 0}">
                         <div th:each="map : ${maps}">
-                            <a th:href="@{/maps/view/{id}(id=${map.mapId})}" class="class-link">
+                            <a th:href="@{/student/passcode/{id}(id=${map.mapId})}" class="class-link">
                                 <strong th:text="${map.className}">Class Name</strong>
                                 <span th:text="${map.lectureDate}">Lecture Date</span>
                             </a>

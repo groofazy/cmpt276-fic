@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Enter Passcode</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+<div class="container text-center mt-5">
+
+    <h2 th:text="${classMap.className}"></h2>
+    <p th:text="${classMap.lectureDate}"></p>
+
+    <form action="/student/passcode" method="post">
+        <input type="hidden" name="mapId" th:value="${classMap.mapId}">
+
+        <input type="text" name="inputCode"
+               class="form-control w-25 mx-auto mb-3"
+               placeholder="Enter Passcode" required>
+
+        <button class="btn btn-primary">Submit</button>
+    </form>
+
+    <p class="text-danger mt-3" th:if="${error}" th:text="${error}"></p>
+
+</div>
+
+</body>
+</html>
