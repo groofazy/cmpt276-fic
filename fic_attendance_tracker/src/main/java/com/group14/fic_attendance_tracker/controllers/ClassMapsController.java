@@ -15,12 +15,15 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 
 import com.group14.fic_attendance_tracker.models.User;
 import com.group14.fic_attendance_tracker.models.UserRepository;
 import com.group14.fic_attendance_tracker.models.ClassMap;
 import com.group14.fic_attendance_tracker.models.ClassMapRepository;
+import com.group14.fic_attendance_tracker.models.Seat;
 import com.group14.fic_attendance_tracker.models.SeatRepository;
 
 
@@ -147,6 +150,26 @@ public class ClassMapsController {
 
         boolean hasSeat = seatRepo.findByMapIdAndStudentId(id, user.getUid()) != null;
         model.addAttribute("hasSeat", hasSeat);
+        
+        if (user.getRole() == User.RoleType.TEACHER) {
+            List<User> allStudents = userRepo.findAll()
+            .stream()
+            .filter(u -> u.getRole() == User.RoleType.STUDENT)
+            .toList();
+
+            List<Seat> seatRecords = seatRepo.findByMapId(id);
+            Set<Integer> presentIds = seatRecords.stream()
+                .map(Seat::getStudentId)
+                .filter(sid -> sid != null && sid != 0)
+                .collect(java.util.stream.Collectors.toSet());
+
+            List<User> presentStudents = allStudents.stream()
+                .filter(s -> presentIds.contains(s.getUid()))
+                .toList();
+
+            model.addAttribute("presentStudents", presentStudents);
+        } 
+
 
         return "maps/mapView";
     }
