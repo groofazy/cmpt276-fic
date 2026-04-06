@@ -12,12 +12,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 
+
 import com.group14.fic_attendance_tracker.models.User;
+import com.group14.fic_attendance_tracker.models.UserRepository;
 import com.group14.fic_attendance_tracker.models.ClassMap;
 import com.group14.fic_attendance_tracker.models.ClassMapRepository;
 import com.group14.fic_attendance_tracker.models.SeatRepository;
+
+
+
 
 @Controller
 public class ClassMapsController {
@@ -28,6 +35,9 @@ public class ClassMapsController {
 
     @Autowired
     private SeatRepository seatRepo;
+
+    @Autowired
+    private UserRepository userRepo;
 
     @GetMapping("/maps/create")
     public String showCreateMapForm(Model model, HttpSession session) {
@@ -323,4 +333,44 @@ public class ClassMapsController {
             }
             return viewMap(mapId, model, session);
     }
+
+    @GetMapping("/maps/export/{id}")
+    public void exportAttendance(@PathVariable int id, HttpServletResponse response) throws IOException {
+
+    ClassMap classMap = mapRepo.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
+
+    var seats = seatRepo.findByMapId(id);
+
+    String fileName = classMap.getClassName() + "_" + classMap.getLectureDate() + ".csv";
+
+    response.setContentType("text/csv");
+    response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+    PrintWriter writer = response.getWriter();
+
+    // Course info
+    writer.println("Course," + classMap.getClassName());
+    writer.println("Date," + classMap.getLectureDate());
+    writer.println("");
+
+    // UPDATED HEADER
+    writer.println("Name,Status");
+
+    // LOOP THROUGH SEATS
+    for (var seat : seats) {
+        Integer studentId = seat.getStudentId();
+
+        if (studentId != null && studentId != 0) {
+
+            userRepo.findById(studentId).ifPresent(user -> {
+                writer.println(user.getName()  + ",Present");
+            });
+
+        }
+    }
+
+    writer.flush();
+    writer.close();
+}
 }

@@ -202,32 +202,29 @@ public class UsersController {
         List<ClassMap> maps = mapRepo.findAll()
             .stream()
             .filter(map -> map.getCreatorId() == user.getUid())
-            .filter(map -> map.getActive() != null && map.getActive() == true)
             .toList();
         model.addAttribute("maps", maps);
 
-        // Get active map
+        List<User> presentStudents = new ArrayList<>();
+
+        // Find the teacher's active classroom
         ClassMap activeMap = maps.stream()
             .filter(map -> map.getActive() != null && map.getActive())
             .findFirst()
             .orElse(null);
-        model.addAttribute("activeMap", activeMap);
 
         if (activeMap != null) {
             List<Seat> seatRecords = seatRepo.findByMapId(activeMap.getMapId());
-
             Set<Integer> presentIds = seatRecords.stream()
-            .map(Seat::getStudentId)
-            .filter(id -> id != null)
-            .collect(java.util.stream.Collectors.toSet());
-
-            List<User> presentStudents = students.stream()
-            .filter(student -> presentIds.contains(student.getUid()))
-            .toList();
-
+                .map(Seat::getStudentId)
+                .filter(id -> id != null)
+                .collect(java.util.stream.Collectors.toSet());
+            presentStudents = students.stream()
+                .filter(student -> presentIds.contains(student.getUid()))
+                .toList();
             model.addAttribute("presentStudents", presentStudents);
         }
-
+        
         return "users/teacherView";
     }
 
