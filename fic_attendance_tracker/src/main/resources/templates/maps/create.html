@@ -12,8 +12,8 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="mt-4">
-                    <a th:href="@{/back}" class="btn btn-secondary">Back</a> <!-- Returns back to Teacher View Dashboard page-->
-                </div>                   
+                    <a th:href="@{/back}" class="btn btn-secondary">Back</a>
+                </div>
                 <h1 class="text-center mt-5 mb-4">Create New Class</h1>
 
                 <form action="/maps/create" method="post">
@@ -22,7 +22,7 @@
                         <label for="subject">Course Subject:</label>
                         <select name="subject" class="form-select" id="subject">
                             <option value="" disabled selected>Select a subject...</option>
-                            <option value="ACMA">ACMA</option>  
+                            <option value="ACMA">ACMA</option>
                             <option value="ALS">ALS</option>
                             <option value="APMA">APMA</option>
                             <option value="ARAB">ARAB</option>
@@ -139,7 +139,7 @@
                             <option value="WS">WS</option>
                         </select>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="number">Course Number:</label>
                         <select name="number" id="number" class="form-select form-control-lg" required>
@@ -156,7 +156,7 @@
 
                     <div class="mb-3">
                         <label for="lectureDate">Lecture Date:</label>
-                        <input type="date" name="lectureDate" id="lectureDate" class="form-control form-control-lg" 
+                        <input type="date" name="lectureDate" id="lectureDate" class="form-control form-control-lg"
                                style="background-color: #e9ecef; pointer-events: none;" readonly required>
                     </div>
 
@@ -164,6 +164,14 @@
                         <label for="numRow">Number of Rows:</label>
                         <input type="number" name="numRow" class="form-control form-control-lg" min="1" max="10" required>
                         <small class="text-muted">Each row will contain 4 blocks of 3 seats.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="passcode">Class Passcode:</label>
+                        <input type="text" name="passcode" id="passcode"
+                               class="form-control form-control-lg"
+                               placeholder="Enter passcode for students"
+                               required>
                     </div>
 
                     <div class="d-grid gap-2">
