@@ -195,14 +195,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeList = document.getElementById('time-list');
     const hiddenContainer = document.getElementById('hidden-times-container');
 
-    if(modal){
-        // Open & Close button 
+    // Open & Close button 
+    if (modal && btnOpen && btnClose && btnSave && timeList && hiddenContainer) {
         btnOpen.addEventListener('click', () => modal.style.display = 'flex');
         btnClose.addEventListener('click', () => modal.style.display = 'none');
 
         // Save Time Logic
         btnSave.addEventListener('click', () => {
-            
+        
             // Get selected day
             const selectedDay = document.querySelector('input[name="day"]:checked');
             if (!selectedDay) {
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Get times directly from the dropdowns
             const start = `${document.getElementById('start-hh').value}:${document.getElementById('start-mm').value}`;
             const end = `${document.getElementById('end-hh').value}:${document.getElementById('end-mm').value}`;
-            
+        
             // Format the date & time
             const formattedDate = `${selectedDay.value} ${start} - ${end}`;
 
