@@ -24,7 +24,7 @@ public class SfuCourseController {
     @ResponseBody
     public List<String> getDepartments(HttpSession session) {
         User user = (User) session.getAttribute("session_user");
-        if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
@@ -35,7 +35,7 @@ public class SfuCourseController {
     @ResponseBody
     public List<String> getCourseNumbers(@RequestParam("department") String department, HttpSession session) {
         User user = (User) session.getAttribute("session_user");
-        if (user == null || user.getRole() != User.RoleType.ADMIN) {
+        if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
