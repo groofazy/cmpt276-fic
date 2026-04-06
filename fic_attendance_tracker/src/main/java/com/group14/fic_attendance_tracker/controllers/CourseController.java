@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.group14.fic_attendance_tracker.models.User;
@@ -39,6 +39,7 @@ public class CourseController {
     @PostMapping("/courses/add")
     public String addCourses(@RequestParam("subject") String subject,
             @RequestParam("number") String number,
+            @RequestParam("courseTimes") List<String> courseTimes,
             HttpSession session,
             HttpServletResponse response
     ) {
@@ -47,10 +48,15 @@ public class CourseController {
             return "users/login";
         }
 
+        if (courseTimes == null) {
+            courseTimes = new ArrayList<>();
+        }
+
         int adminId = user.getUid();
         Course.CourseSubject courseSubject = Course.CourseSubject.valueOf(subject);
         String courseNum = String.format("%03d", Integer.parseInt(number));
-        courseRepo.save(new Course(adminId, courseSubject, courseNum));
+
+        courseRepo.save(new Course(adminId, courseSubject, courseNum, courseTimes));
         response.setStatus(201);
         return "redirect:/admin/dashboard";
     }
@@ -73,7 +79,11 @@ public class CourseController {
     }
 
     @PostMapping("/courses/edit/{id}")
-    public String editCourse(@PathVariable int id, @RequestParam Map<String, String> formData, HttpSession session) {
+    public String editCourse(@PathVariable int id, 
+            @RequestParam("subject") String subject,
+            @RequestParam("number") String number,
+            @RequestParam("courseTimes") List<String> courseTimes, 
+            HttpSession session) {
         User user = (User) session.getAttribute("session_user");
         if (user == null || user.getRole() != User.RoleType.ADMIN) {
             return "redirect:/login";
@@ -83,13 +93,16 @@ public class CourseController {
         if (course == null) {
             return "redirect:/admin/dashboard";
         }
+
+        if (courseTimes == null) {
+            courseTimes = new ArrayList<>();
+        }
         
-        String subject = formData.get("subject");
         Course.CourseSubject courseSubject = Course.CourseSubject.valueOf(subject);
-        String number = formData.get("number");
         String courseNum = String.format("%03d", Integer.parseInt(number));
         course.setCourseSubject(courseSubject);
         course.setCourseNum(courseNum);
+        course.setCourseTimes(courseTimes);
         
         courseRepo.save(course);
         

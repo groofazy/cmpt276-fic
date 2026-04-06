@@ -188,6 +188,7 @@
                                     <th>Admin</th>
                                     <th>Course Subject</th>
                                     <th>Course Number</th>
+                                    <th>Course Times</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -197,6 +198,12 @@
                                     <td th:text="${course.adminId}"></td>
                                     <td th:text="${course.courseSubject}"></td>
                                     <td th:text="${course.courseNum}"></td>
+                                    <td>
+                                        <div th:each="time : ${course.courseTimes}" th:text="${time}"></div>
+                                        <div th:if="${course.courseTimes == null or course.courseTimes.isEmpty()}" class="text-muted" style="font-size: 0.85rem;">
+                                            No times set
+                                        </div>
+                                    </td>
                                     <td>
                                         <div class="action-buttons">
                                             <a th:href="@{/courses/edit/{id}(id=${course.courseId})}" class="btn-sm btn-edit">

@@ -1,6 +1,7 @@
 package com.group14.fic_attendance_tracker.models;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name="courses")
@@ -32,14 +33,22 @@ public class Course {
     @Column(name="course_num")
     private String courseNum;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "course_times", joinColumns = @JoinColumn(name = "course_id"))
+    @Column(name = "time")
+    private List<String> courseTimes;
+
     // Constructor for Course object
     public Course() {
     }
 
-    public Course(int adminId, CourseSubject subject, String courseNum){
+    public Course(int adminId, CourseSubject subject, String courseNum, List<String> courseTimes){
         this.adminId = adminId;
         this.subject = subject;
         this.courseNum = courseNum;
+        if (courseTimes != null) {
+            this.courseTimes = courseTimes;
+        }
     }
 
     public int getCourseId(){
@@ -68,5 +77,12 @@ public class Course {
     }
     public void setCourseNum(String courseNum){
         this.courseNum = courseNum;
+    }
+
+    public List<String> getCourseTimes() {
+        return courseTimes;
+    }
+    public void setCourseTimes(List<String> courseTimes) {
+        this.courseTimes = courseTimes;
     }
 }
