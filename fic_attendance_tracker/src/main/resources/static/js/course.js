@@ -4,6 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const numberSelect = document.getElementById('number');
     const timeSelect = document.getElementById('time');
 
+    // Course Info Elements (Student View)
+    const courseInfoContainer = document.getElementById('course-info-container');
+    const displayCourseTitle = document.getElementById('display-course-title');
+    const displayCourseTimes = document.getElementById('display-course-times');
+
     if (subjectSelect && numberSelect) {
         subjectSelect.addEventListener('change', function() {
             const subject = this.value;
@@ -44,44 +49,64 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Error fetching course numbers:', error);
                     numberSelect.innerHTML = '<option value="">Error loading courses</option>';
                 });
-            
-            // Fetch the course time when having both subject and course number
-            if (timeSelect) {
-                numberSelect.addEventListener('change', function() {
-                    const subject = subjectSelect.value;
-                    const number = this.value;
+        });
+        
+        // Fetch the course time when having both subject and course number
+        numberSelect.addEventListener('change', function() {
+            const subject = subjectSelect.value;
+            const number = this.value;
 
-                    timeSelect.innerHTML = '<option value=""></option>';
-
-                    if (!subject || !number) {
-                        timeSelect.innerHTML = '<option value="">Select a subject and course number first...</option>';
-                        return;
-                    }
-
-                    // Fetch meeting times for this specific course
-                    fetch(`/courses/times?subject=${subject}&number=${number}`)
-                        .then(response => response.json())
-                        .then(times => {
-                            timeSelect.innerHTML = '';
-                            if (times.length === 0) {
-                                timeSelect.innerHTML = '<option value="">No times found</option>';
-                            } else {
-                                timeSelect.innerHTML = '<option value="" disabled selected>Select a course time</option>';
-                                times.forEach(time => {
-                                    const option = document.createElement('option');
-                                    option.value = time;
-                                    option.textContent = time;
-                                    timeSelect.appendChild(option);
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching course times:', error);
-                            timeSelect.innerHTML = '<option value="">Error loading times</option>';
-                        });
-                });
+            if (timeSelect) { 
+                timeSelect.innerHTML = '<option value=""></option>';
+            } else {
+                if (!subject || !number) {
+                    timeSelect.innerHTML = '<option value="">Select a subject and course number first...</option>';
+                    return;
+                }
             }
-        });        
+
+            // Fetch meeting times for this specific course
+            fetch(`/courses/times?subject=${subject}&number=${number}`)
+                .then(response => response.json())
+                .then(times => {
+                    
+                    // Display on Teacher View
+                    if (timeSelect) {
+                        timeSelect.innerHTML = '';
+                        if (times.length === 0) {
+                            timeSelect.innerHTML = '<option value="">No times found</option>';
+                        } else {
+                            timeSelect.innerHTML = '<option value="" disabled selected>Select a course time</option>';
+                            times.forEach(time => {
+                                const option = document.createElement('option');
+                                option.value = time;
+                                option.textContent = time;
+                                timeSelect.appendChild(option);
+                            });
+                        }
+                    }
+                    
+                    // Display on Student View
+                    else {
+                        displayCourseTitle.textContent = `${subject} ${number}`;
+
+                        document.getElementById('enroll-subject').value = subject;
+                        document.getElementById('enroll-number').value = number;
+                        
+                        if (times.length === 0) {
+                            displayCourseTimes.innerHTML = '<div class="text-muted fst-italic">No times listed</div>';
+                        } else {
+                            displayCourseTimes.innerHTML = times.map(t => `<div class="mb-1"><i class="far fa-clock me-2 text-muted"></i>${t}</div>`).join('');
+                        }
+                        
+                        courseInfoContainer.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching course times:', error);
+                    timeSelect.innerHTML = '<option value="">Error loading times</option>';
+                });
+        });
     }
 
     // Handling the Course Time Input Form Pop-Up

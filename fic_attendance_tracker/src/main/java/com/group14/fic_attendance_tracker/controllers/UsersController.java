@@ -82,13 +82,36 @@ public class UsersController {
             return "redirect:/login";
         }
 
+        // Check if the student has enrolled in any courses
+        List<String> enrolledCourseIds = user.getCourseEnrolled();
+        boolean hasEnrolledCourses = enrolledCourseIds != null && !enrolledCourseIds.isEmpty();
+
+        // Fetch all enrolled courses
+        List<Course> enrolledCourses = new ArrayList<>();
+        List<String> enrolledCourseNames = new ArrayList<>();
+        if (hasEnrolledCourses) {
+            for (String id : enrolledCourseIds) {
+                try {
+                    int courseId = Integer.parseInt(id);
+                    Course course = courseRepo.findByCourseId(courseId);
+                    if (course != null) {
+                        enrolledCourses.add(course);
+                        enrolledCourseNames.add(course.getCourseSubject().name() + " " + course.getCourseNum());
+                    }
+                } catch (NumberFormatException e) {}
+            }
+        }
+
+        // Display maps of only enrolled courses
         List<ClassMap> allMaps = mapRepo.findAll()
             .stream()
             .filter(map->map.getActive() != null && map.getActive())
+            .filter(map -> enrolledCourseNames.contains(map.getClassName()))
             .toList();
 
         List<ClassMap> upcomingMaps = allMaps.stream()
             .filter(map -> !map.getLectureDate().isBefore(LocalDate.now()))
+            .filter(map -> enrolledCourseNames.contains(map.getClassName()))
             .toList();
 
         List<AttendanceRecord> records = attendanceRepo.findByStudentIdOrderBySelectedAtDesc(user.getUid());
@@ -111,8 +134,50 @@ public class UsersController {
         model.addAttribute("maps", allMaps);
         model.addAttribute("upcomingMaps", upcomingMaps);
         model.addAttribute("attendanceHistory", attendanceHistory);
+        model.addAttribute("hasEnrolledCourses", hasEnrolledCourses);
+        model.addAttribute("enrolledCourses", enrolledCourses);
 
         return "users/studentView";
+    }
+
+    @PostMapping("/users/student/enroll")
+    public String enrollCourse(@RequestParam("subject") String subject, 
+                               @RequestParam("number") String number, 
+                               HttpSession session) {
+        
+        User sessionUser = (User) session.getAttribute("session_user");
+        if (sessionUser == null || sessionUser.getRole() != User.RoleType.STUDENT) {
+            return "redirect:/login";
+        }
+
+        User user = userRepo.findById(sessionUser.getUid()).orElse(null);
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            // Fetch the course using Subject and Number
+            Course.CourseSubject courseSubject = Course.CourseSubject.valueOf(subject);
+            Course course = courseRepo.findBySubjectAndCourseNum(courseSubject, number);
+            
+            if (course != null) {
+                String courseIdStr = String.valueOf(course.getCourseId());
+                List<String> enrolledCourses = user.getCourseEnrolled();
+
+                // Check duplicate and maximum
+                // Can enroll maximum 6 courses
+                if (!enrolledCourses.contains(courseIdStr) && enrolledCourses.size() < 6) {
+                    enrolledCourses.add(courseIdStr);
+                    user.setCourseEnrolled(enrolledCourses);
+                    userRepo.save(user);
+                    session.setAttribute("session_user", user);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error enrolling in course: " + e.getMessage());
+        }
+
+        return "redirect:/users/student";
     }
 
     // teacher dashboard

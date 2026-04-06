@@ -1073,7 +1073,7 @@ body > .container:first-of-type > .section:nth-of-type(4) button:hover {
 }
 
 /* ==================== COURSE ADD FORM ==================== */
-.btn-course-time {
+.btn-course {
     display: block;
     width: 100%;
     padding: 12px 0;
@@ -1088,13 +1088,13 @@ body > .container:first-of-type > .section:nth-of-type(4) button:hover {
     transition: all 0.2s ease;
 }
 
-.btn-course-time:hover {
+.btn-course:hover {
     background-color: #e6f0ff;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(13, 110, 253, 0.1);
 }
 
-.btn-course-time:active {
+.btn-course:active {
     background-color: #0d6efd;
     color: white;
     transform: translateY(0);
@@ -1231,4 +1231,9 @@ body > .container:first-of-type > .section:nth-of-type(4) button:hover {
     outline: none;
     border-color: #0d6efd;
     box-shadow: 0 0 5px rgba(13, 110, 253, 0.3);
+}
+
+#course-card {
+    border-radius: 12px; 
+    border-left: 5px solid #0d6efd;
 }
