@@ -9,6 +9,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const displayCourseTitle = document.getElementById('display-course-title');
     const displayCourseTimes = document.getElementById('display-course-times');
 
+    // Load departments dynamically
+    const loadDepartments = () => {
+        if (!subjectSelect) return;
+
+        fetch('/courses/subjects')
+            .then(response => response.json())
+            .then(subjects => {
+                subjectSelect.innerHTML = '<option value="" disabled selected>Select a subject...</option>';
+                subjects.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept;
+                    subjectSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching subjects:', error);
+            });
+    };
+
     if (subjectSelect && numberSelect) {
         subjectSelect.addEventListener('change', function() {
             const subject = this.value;
@@ -129,7 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(error => {
                     console.error('Error fetching course times:', error);
-                    timeSelect.innerHTML = '<option value="">Error loading times</option>';
+                    if (timeSelect) {
+                        timeSelect.innerHTML = '<option value="">Error loading times</option>';
+                    }
                 });
         });
     }
@@ -245,4 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.style.display = 'none';
         });
     }
+
+    // Kick off department loading
+    loadDepartments();
 });

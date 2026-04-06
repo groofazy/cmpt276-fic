@@ -166,4 +166,15 @@ public class CourseController {
             return List.of(); 
         }
     }
+
+    @GetMapping("/courses/subjects")
+    @ResponseBody
+    public List<String> getAvailableSubjects() {
+        return courseRepo.findAll()
+            .stream()
+            .map(course -> course.getCourseSubject().name())
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+    }
 }
