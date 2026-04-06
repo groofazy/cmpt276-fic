@@ -1,4 +1,88 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // SFU-backed add course workflow
+    const departmentSelect = document.getElementById('department-select');
+    const courseNumberSelect = document.getElementById('course-number-select');
+
+    if (departmentSelect && courseNumberSelect) {
+        const resetCourseNumbers = (message, disabled) => {
+            courseNumberSelect.innerHTML = `<option value="">${message}</option>`;
+            courseNumberSelect.disabled = disabled;
+        };
+
+        const loadDepartments = () => {
+            fetch('/sfu/departments')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Unable to load departments');
+                    }
+
+                    return response.json();
+                })
+                .then(departments => {
+                    departmentSelect.innerHTML = '<option value="" disabled selected>Select a department</option>';
+
+                    if (!departments.length) {
+                        departmentSelect.innerHTML = '<option value="">No departments available</option>';
+                        resetCourseNumbers('Select a department first', true);
+                        return;
+                    }
+
+                    departments.forEach(department => {
+                        const option = document.createElement('option');
+                        option.value = department;
+                        option.textContent = department;
+                        departmentSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching departments:', error);
+                    departmentSelect.innerHTML = '<option value="">Unable to load departments</option>';
+                    resetCourseNumbers('Unable to load course numbers', true);
+                });
+        };
+
+        departmentSelect.addEventListener('change', function() {
+            const department = this.value;
+
+            if (!department) {
+                resetCourseNumbers('Select a department first', true);
+                return;
+            }
+
+            resetCourseNumbers('Loading course numbers...', true);
+
+            fetch(`/sfu/course-numbers?department=${encodeURIComponent(department)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Unable to load course numbers');
+                    }
+
+                    return response.json();
+                })
+                .then(numbers => {
+                    if (!numbers.length) {
+                        resetCourseNumbers('No course numbers found', true);
+                        return;
+                    }
+
+                    courseNumberSelect.innerHTML = '<option value="" disabled selected>Select a course number</option>';
+                    numbers.forEach(number => {
+                        const option = document.createElement('option');
+                        option.value = number;
+                        option.textContent = number;
+                        courseNumberSelect.appendChild(option);
+                    });
+                    courseNumberSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error fetching course numbers:', error);
+                    resetCourseNumbers('Unable to load course numbers', true);
+                });
+        });
+
+        loadDepartments();
+    }
+
     // Handling the Selected box in the Classroom Create & Edit Form
     const subjectSelect = document.getElementById('subject');
     const numberSelect = document.getElementById('number');
@@ -118,51 +202,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const hiddenContainer = document.getElementById('hidden-times-container');
 
     // Open & Close button 
-    btnOpen.addEventListener('click', () => modal.style.display = 'flex');
-    btnClose.addEventListener('click', () => modal.style.display = 'none');
+    if (modal && btnOpen && btnClose && btnSave && timeList && hiddenContainer) {
+        btnOpen.addEventListener('click', () => modal.style.display = 'flex');
+        btnClose.addEventListener('click', () => modal.style.display = 'none');
 
-    // Save Time Logic
-    btnSave.addEventListener('click', () => {
+        // Save Time Logic
+        btnSave.addEventListener('click', () => {
         
-        // Get selected day
-        const selectedDay = document.querySelector('input[name="day"]:checked');
-        if (!selectedDay) {
-            alert("Please select a day.");
-            return;
-        }
+            // Get selected day
+            const selectedDay = document.querySelector('input[name="day"]:checked');
+            if (!selectedDay) {
+                alert("Please select a day.");
+                return;
+            }
 
-        // Get times directly from the dropdowns
-        const start = `${document.getElementById('start-hh').value}:${document.getElementById('start-mm').value}`;
-        const end = `${document.getElementById('end-hh').value}:${document.getElementById('end-mm').value}`;
+            // Get times directly from the dropdowns
+            const start = `${document.getElementById('start-hh').value}:${document.getElementById('start-mm').value}`;
+            const end = `${document.getElementById('end-hh').value}:${document.getElementById('end-mm').value}`;
         
-        // Format the date & time
-        const formattedDate = `${selectedDay.value} ${start} - ${end}`;
+            // Format the date & time
+            const formattedDate = `${selectedDay.value} ${start} - ${end}`;
 
-        // Create a UI element to show the user
-        const timeBadge = document.createElement('div');
-        timeBadge.className = 'alert alert-info py-2 px-3 mb-0 d-flex justify-content-between align-items-center';
-        timeBadge.innerHTML = `
-            <span><i class="far fa-clock me-2"></i> ${formattedDate}</span>
-            <button type="button" class="btn-close" style="font-size: 0.8rem;"></button>
-        `;
+            // Create a UI element to show the user
+            const timeBadge = document.createElement('div');
+            timeBadge.className = 'alert alert-info py-2 px-3 mb-0 d-flex justify-content-between align-items-center';
+            timeBadge.innerHTML = `
+                <span><i class="far fa-clock me-2"></i> ${formattedDate}</span>
+                <button type="button" class="btn-close" style="font-size: 0.8rem;"></button>
+            `;
 
-        // Create a hidden input to send to Spring Boot
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'courseTimes';
-        hiddenInput.value = formattedDate;
+            // Create a hidden input to send to Spring Boot
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'courseTimes';
+            hiddenInput.value = formattedDate;
 
-        // Handle delete button
-        timeBadge.querySelector('.btn-close').addEventListener('click', () => {
-            timeBadge.remove();
-            hiddenInput.remove();
+            // Handle delete button
+            timeBadge.querySelector('.btn-close').addEventListener('click', () => {
+                timeBadge.remove();
+                hiddenInput.remove();
+            });
+
+            timeList.appendChild(timeBadge);
+            hiddenContainer.appendChild(hiddenInput);
+
+            // Reset form and close modal
+            selectedDay.checked = false;
+            modal.style.display = 'none';
         });
-
-        timeList.appendChild(timeBadge);
-        hiddenContainer.appendChild(hiddenInput);
-
-        // Reset form and close modal
-        selectedDay.checked = false;
-        modal.style.display = 'none';
-    });
+    }
 });

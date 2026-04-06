@@ -39,7 +39,7 @@ public class CourseController {
     @PostMapping("/courses/add")
     public String addCourses(@RequestParam("subject") String subject,
             @RequestParam("number") String number,
-            @RequestParam("courseTimes") List<String> courseTimes,
+            @RequestParam(value = "courseTimes", required = false) List<String> courseTimes,
             HttpSession session,
             HttpServletResponse response
     ) {
