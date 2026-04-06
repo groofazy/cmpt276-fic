@@ -890,7 +890,7 @@ body > .container:first-of-type > .section:nth-of-type(4) button:hover {
     padding: 10px 18px;
 }
 
-/* ==================== COURSE ADD FORM ==================== */
+/* ==================== COURSE REGISTER FORM ==================== */
 .btn-course {
     display: block;
     width: 100%;
@@ -1054,4 +1054,115 @@ body > .container:first-of-type > .section:nth-of-type(4) button:hover {
 #course-card {
     border-radius: 12px; 
     border-left: 5px solid #0d6efd;
+}
+
+/* ==================== WEEKLY SCHEDULE CALENDAR ==================== */
+.schedule-container {
+    display: flex;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+
+.time-labels {
+    width: 60px;
+    border-right: 1px solid #dee2e6;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+}
+
+.time-header {
+    height: 50px;
+    background: #e9ecef;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.time-slot {
+    height: 50px; /* 1 hour = 50px */
+    border-bottom: 1px solid #eaeaea;
+    text-align: right;
+    padding-right: 8px;
+    font-size: 0.8rem;
+    color: #6c757d;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 5px;
+}
+
+.days-grid {
+    display: flex;
+    flex: 1;
+}
+
+.day-col {
+    flex: 1;
+    border-right: 1px solid #dee2e6;
+    position: relative;
+}
+
+.day-col:last-child {
+    border-right: none;
+}
+
+.day-header {
+    height: 50px;
+    background: #e9ecef;
+    text-align: center;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.day-body {
+    position: relative;
+    height: 600px; /* 12 hours (8am-8pm) * 50px */
+    background-image: linear-gradient(#eaeaea 1px, transparent 1px);
+    background-size: 100% 50px; /* Generates the horizontal grid lines */
+}
+
+.class-block {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 0.85rem;
+    text-align: center;
+    color: #0d6efd;
+    background-color: #ffffff;
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform 0.15s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #0d6efd;
+    border-left: 5px solid #0d6efd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.class-block:hover {
+    transform: scale(1.02);
+    z-index: 10;
+    color: #ffffff; /* Ensure text stays white when hovering */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.class-block .pin {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    color: #c0392b; /* Red pin color */
+    font-size: 0.9rem;
+    transform: rotate(30deg);
 }

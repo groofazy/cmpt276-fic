@@ -99,6 +99,31 @@ document.addEventListener('DOMContentLoaded', () => {
                             displayCourseTimes.innerHTML = times.map(t => `<div class="mb-1"><i class="far fa-clock me-2 text-muted"></i>${t}</div>`).join('');
                         }
                         
+                        // Check if student have enrolled on that course or not
+                        const enrollBtn = document.getElementById('btn-enroll');
+                        if (enrollBtn) {
+
+                            // Find all titles of courses the student is currently enrolled in
+                            const enrolledTitles = document.querySelectorAll('.enrolled-course-title');
+                            
+                            // Check if the searched course matches any of their enrolled courses
+                            const isAlreadyEnrolled = Array.from(enrolledTitles).some(
+                                title => title.textContent.trim() === `${subject} ${number}`
+                            );
+
+                            if (isAlreadyEnrolled) {
+                                // Turn button gray and disable it
+                                enrollBtn.textContent = 'Already Enrolled';
+                                enrollBtn.className = 'btn btn-secondary';
+                                enrollBtn.disabled = true;
+                            } else {
+                                // Active blue button
+                                enrollBtn.textContent = 'Enrolled Class'; 
+                                enrollBtn.className = 'btn-course'; 
+                                enrollBtn.disabled = false;
+                            }
+                        }
+                        
                         courseInfoContainer.style.display = 'block';
                     }
                 })
@@ -106,6 +131,59 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Error fetching course times:', error);
                     timeSelect.innerHTML = '<option value="">Error loading times</option>';
                 });
+        });
+    }
+
+    // Auto-fill Lecture Date based on Course Time
+    const lectureDateInput = document.querySelector('input[name="lectureDate"]');
+
+    if (timeSelect && lectureDateInput) {
+        timeSelect.addEventListener('change', function() {
+            const selectedTime = this.value;
+            if (!selectedTime) return;
+
+            // Extract the date
+            const dayName = selectedTime.split(' ')[0];
+
+            // Map day as numeric value
+            const daysMap = {
+                'Sunday': 0, 
+                'Monday': 1, 
+                'Tuesday': 2, 
+                'Wednesday': 3,
+                'Thursday': 4, 
+                'Friday': 5, 
+                'Saturday': 6
+            };
+
+            const targetDayNum = daysMap[dayName];
+            if (targetDayNum === undefined){
+                return; 
+            }
+
+            // Find current date as numeric
+            const today = new Date();
+            const currentDayNum = today.getDay();
+
+            // Calculate how many days to add
+            let daysToAdd = targetDayNum - currentDayNum;
+
+            // If the day has already passed this week, push it to next week
+            if (daysToAdd < 0) {
+                daysToAdd += 7;
+            }
+
+            // Generate the final target date
+            const targetDate = new Date(today);
+            targetDate.setDate(today.getDate() + daysToAdd);
+
+            // Format as YYYY-MM-DD
+            const yyyy = targetDate.getFullYear();
+            const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(targetDate.getDate()).padStart(2, '0');
+
+            // Set the value of the input box
+            lectureDateInput.value = `${yyyy}-${mm}-${dd}`;
         });
     }
 

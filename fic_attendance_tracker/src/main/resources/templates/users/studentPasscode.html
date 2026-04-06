@@ -6,25 +6,31 @@
 </head>
 
 <body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-8 col-md-5 col-lg-4 text-center">
+                
+                <div class="mt-4 text-start mb-3">
+                    <a th:href="@{/back}" class="btn btn-secondary">Back</a>
+                </div>
+                
+                <h2 th:text="${classMap.className}"></h2>
+                <p th:text="${classMap.lectureDate}"></p>
 
-<div class="container text-center mt-5">
+                <form action="/student/passcode" method="post">
+                    <input type="hidden" name="mapId" th:value="${classMap.mapId}">
 
-    <h2 th:text="${classMap.className}"></h2>
-    <p th:text="${classMap.lectureDate}"></p>
+                    <input type="text" name="inputCode"
+                        class="form-control mb-3"
+                        placeholder="Enter Passcode" required>
 
-    <form action="/student/passcode" method="post">
-        <input type="hidden" name="mapId" th:value="${classMap.mapId}">
+                    <button class="btn btn-primary">Submit</button>
+                </form>
 
-        <input type="text" name="inputCode"
-               class="form-control w-25 mx-auto mb-3"
-               placeholder="Enter Passcode" required>
+                <p class="text-danger mt-3" th:if="${error}" th:text="${error}"></p>
 
-        <button class="btn btn-primary">Submit</button>
-    </form>
-
-    <p class="text-danger mt-3" th:if="${error}" th:text="${error}"></p>
-
-</div>
-
+            </div>
+        </div>
+    </div>
 </body>
 </html>

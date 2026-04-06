@@ -10,102 +10,100 @@
 </head>
 
 <body class="bg-light">
+    <div class="container py-4">
 
-<div class="container py-4">
-
-    <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold">FIC Professor Dashboard</h2>
-            <p class="text-muted mb-0" style="font-size: 1.2rem;" th:text="'Welcome, ' + ${user.name}"></p>
-        </div>
-
-        <a th:href="@{/logout}">
-            <button class="btn btn-outline-danger">Logout</button>
-        </a>
-    </div>
-
-    <!-- START ATTENDANCE -->
-    <div class="card p-3 mb-4 shadow-sm">
-        <h5 class="mb-3">Attendance Controls</h5>
-
-        <form th:action="@{/maps/create}" method="get">
-            <button class="btn btn-primary w-100">
-                Create Class
-            </button>
-        </form>
-    </div>
-
-    <!-- ACTIVE CLASSES -->
-<div class="card p-3 mt-5 shadow-sm">
-    <h4 class="mb-3">Active Classes</h4>
-    <div class="row">
-        <div class="col-md-4 mb-2" th:each="map : ${maps}" th:if="${map.active}">
-
-            <div class="card shadow-sm p-3">
-
-                <!-- CLASS INFO -->
-                <div class="text-center mb-2">
-                    <h5 class="fw-bold mb-0" th:text="${map.className}"></h5>
-                    <small class="text-muted" th:text="${map.lectureDate}"></small>
-                    <div>
-                        <span class="badge bg-success">Active</span>
-                    </div>
-                </div>
-
-                <!-- VIEW MAP -->
-                <a th:href="@{/maps/view/{id}(id=${map.mapId})}">
-                    <button class="btn btn-outline-dark w-100 mb-2">
-                        View Class
-                    </button>
-                </a>
-
-                <!-- GENERATE PASSCODE -->
-                <form th:action="@{/attendance/start/{id}(id=${map.mapId})}" method="post">
-                    <button class="btn btn-success w-100 mb-2">
-                        Generate Passcode
-                    </button>
-                </form>
-
-                <!-- END ATTENDANCE -->
-                <form th:action="@{/attendance/end/{id}(id=${map.mapId})}" method="post">
-                    <button class="btn btn-danger w-100 mb-2">
-                        End Attendance
-                    </button>
-                </form>
-
-                <!-- DOWNLOAD CSV -->
-                <a th:href="@{/maps/export/{id}(id=${map.mapId})}">
-                    <button class="btn btn-primary w-100 mb-2">
-                        Download CSV
-                    </button>
-                </a>
-
-                <!-- DELETE -->
-                <form th:action="@{/maps/delete/{id}(id=${map.mapId})}" method="post"
-                      onsubmit="return confirm('Are you sure?')">
-                    <button class="btn btn-secondary w-100">
-                        Delete Class
-                    </button>
-                </form>
-
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold">📚 Professor Dashboard</h2>
+                <p class="text-muted mb-0" th:text="'Welcome, ' + ${user.name}"></p>
             </div>
-        </div>
-    </div>
-</div>
 
-    <!-- PAST CLASSES -->
-     <div class="card p-3 mt-5 shadow-sm">
-        <h4 class="mt-1">Past Classes</h4>
+            <a th:href="@{/logout}">
+                <button class="btn btn-outline-danger">Logout</button>
+            </a>
+        </div>
+
+        <!-- START ATTENDANCE -->
+        <div class="card p-3 mb-4 shadow-sm">
+            <h5 class="mb-3">Attendance Controls</h5>
+
+            <form th:action="@{/maps/create}" method="get">
+                <button class="btn btn-primary w-100">
+                    ➕ Start Attendance (Create Class)
+                </button>
+            </form>
+        </div>
+
+        <!-- ACTIVE CLASSES -->
+        <h4 class="mb-3">🟢 Active Classes</h4>
 
         <div class="row">
-            <div class="col-md-4 mb-2" th:each="map : ${maps}" th:if="${!map.active}">
+            <div class="col-md-4 mb-3" th:each="map : ${maps}" th:if="${map.active}">
+
+                <div class="card shadow-sm p-3">
+
+                    <!-- CLASS INFO -->
+                    <div class="text-center mb-2">
+                        <h5 class="fw-bold" th:text="${map.className}"></h5>
+                        <small class="text-muted" th:text="${map.lectureDate}"></small>
+
+                        <div>
+                            <span class="badge bg-success">Active</span>
+                        </div>
+                    </div>
+
+                    <!-- VIEW MAP -->
+                    <a th:href="@{/maps/view/{id}(id=${map.mapId})}">
+                        <button class="btn btn-outline-dark w-100 mb-2">
+                            View Class
+                        </button>
+                    </a>
+
+                    <!-- GENERATE PASSCODE -->
+                    <form th:action="@{/attendance/start/{id}(id=${map.mapId})}" method="post">
+                        <button class="btn btn-success w-100 mb-2">
+                            Generate Passcode
+                        </button>
+                    </form>
+
+                    <!-- END ATTENDANCE -->
+                    <form th:action="@{/attendance/end/{id}(id=${map.mapId})}" method="post">
+                        <button class="btn btn-danger w-100 mb-2">
+                            End Attendance
+                        </button>
+                    </form>
+
+                    <!-- DOWNLOAD CSV -->
+                    <a th:href="@{/maps/export/{id}(id=${map.mapId})}">
+                        <button class="btn btn-primary w-100 mb-2">
+                            Download CSV
+                        </button>
+                    </a>
+
+                    <!-- DELETE -->
+                    <form th:action="@{/maps/delete/{id}(id=${map.mapId})}" method="post"
+                        onsubmit="return confirm('Are you sure?')">
+                        <button class="btn btn-secondary w-100">
+                            Delete Class
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- PAST CLASSES -->
+        <h4 class="mt-4 mb-3">⚪ Past Classes</h4>
+
+        <div class="row">
+            <div class="col-md-4 mb-3" th:each="map : ${maps}" th:if="${!map.active}">
 
                 <div class="card shadow-sm p-3 bg-light border">
 
                     <!-- CLASS INFO -->
                     <div class="text-center mb-2">
-                        <h5 class="fw-bold mb-0" th:text="${map.className}"></h5>
+                        <h5 class="fw-bold" th:text="${map.className}"></h5>
                         <small class="text-muted" th:text="${map.lectureDate}"></small>
 
                         <div>
@@ -138,34 +136,31 @@
                 </div>
             </div>
         </div>
-     </div>
 
-    <!-- CURRENT ATTENDANCE
-    <div class="card p-3 mt-5 shadow-sm">
-        <h4 class="mb-3">📊 Current Attendance</h4>
+        <!-- CURRENT ATTENDANCE -->
+        <div class="card p-3 mt-5 shadow-sm">
+            <h5 class="mb-3">📊 Current Attendance</h5>
 
-        <table class="table table-bordered text-center">
-            <thead class="table-dark">
-            <tr>
-                <th>Student Name</th>
-                <th>Status</th>
-            </tr>
-            </thead>
+            <table class="table table-bordered text-center">
+                <thead class="table-dark">
+                <tr>
+                    <th>Student Name</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
 
-            <tbody>
-            <tr th:if="${presentStudents == null || #lists.isEmpty(presentStudents)}">
-                <td colspan="2">No students marked present</td>
-            </tr>
+                <tbody>
+                <tr th:if="${presentStudents == null || #lists.isEmpty(presentStudents)}">
+                    <td colspan="2">No students marked present</td>
+                </tr>
 
-            <tr th:each="student : ${presentStudents}">
-                <td th:text="${student.name}"></td>
-                <td class="text-success fw-bold">Present</td>
-            </tr>
-            </tbody>
-        </table>
-    </div> -->
-
-</div>
-
+                <tr th:each="student : ${presentStudents}">
+                    <td th:text="${student.name}"></td>
+                    <td class="text-success fw-bold">Present</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>
