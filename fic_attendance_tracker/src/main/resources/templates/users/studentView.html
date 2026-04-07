@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -17,7 +18,17 @@
                     <a th:href="@{/logout}" class="btn btn-outline-danger">Logout</a>
                 </div>
 
-                <div class="dashboard-section">
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i><strong th:text="${errorMessage}">Error Message</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-check-circle me-2"></i><strong th:text="${successMessage}">Success Message</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- <div class="dashboard-section">
                     <h3>Welcome, <span th:text="${user.name}">Student</span></h3>
                     <p class="mb-0">You are successfully logged into the FIC Attendance Tracker.</p>
                 </div>
@@ -27,26 +38,319 @@
                     <p><strong>User ID:</strong> <span th:text="${user.uid}">1</span></p>
                     <p><strong>Username:</strong> <span th:text="${user.name}">student_name</span></p>
                     <p class="mb-0"><strong>Role:</strong> <span th:text="${user.role}">STUDENT</span></p>
-                </div>
+                </div> -->
 
                 <div class="dashboard-section">
-                    <h4>Available Classes</h4>
+                    <h4>Class Register</h4>
+                    <p>You can register for upcoming courses here.</p>
+                    <div class="row mt-3 align-items-end">
+                        <div class="col-md-5 mb-2">
+                            <label for="subject">Course Subject:</label>
+                                <select name="subject" class="form-select" id="subject" style="height: 50px;">
+                                    <option value="">Loading departments...</option>
+                                </select>
+                        </div>
+                        
+                        <div class="col-md-7 mb-2">
+                            <label for="number">Course Number:</label>
+                            <select name="number" id="number" class="form-select form-control-lg" style="height: 50px;" required>
+                                <option value="">Select a subject first...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="course-info-container" class="mt-4" style="display: none;">
+                        <div id="course-card" class="card shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <div>
+                                        <h5 class="card-title text-primary fw-bold mb-2" id="display-course-title">Subject Number</h5>
+                                        <div id="display-course-times"></div>
+                                    </div>
+                                    <div>
+                                        <form action="/users/student/enroll" method="POST">
+                                            <input type="hidden" name="subject" id="enroll-subject">
+                                            <input type="hidden" name="number" id="enroll-number">
+                                            <button type="submit" id="btn-enroll" class="btn-course" style="border-radius: 8px; padding: 8px 24px;">
+                                                Enrolled Class
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                    <div th:if="${maps != null and maps.size() > 0}">
-                        <div th:each="map : ${maps}">
-                            <a th:href="@{/maps/view/{id}(id=${map.mapId})}" class="class-link">
-                                <strong th:text="${map.className}">Class Name</strong>
-                                <span th:text="${map.lectureDate}">Lecture Date</span>
-                            </a>
+                <div class="dashboard-section" th:if="${hasEnrolledCourses}">
+                    <h4>Enrolled Courses</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3" th:each="course : ${enrolledCourses}">
+                            <div id="course-card" class="card shadow-sm h-100">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title text-primary fw-bold mb-2 enrolled-course-title" th:text="${course.courseSubject + ' ' + course.courseNum}">Subject Number</h5>
+                                        
+                                        <div th:if="${course.courseTimes == null or course.courseTimes.isEmpty()}" class="text-muted fst-italic">
+                                            No times listed
+                                        </div>
+
+                                        <div th:if="${course.courseTimes != null and !course.courseTimes.isEmpty()}">
+                                            <div th:each="time : ${course.courseTimes}" class="mb-1">
+                                                <i class="far fa-clock me-2 text-muted"></i><span th:text="${time}">Time</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <form th:action="@{/users/student/drop}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure?');">
+                                            <input type="hidden" name="courseId" th:value="${course.courseId}" />
+                                            <button type="submit" class="btn btn-danger">
+                                                Drop
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-section" th:if="${hasEnrolledCourses}">
+                    <h4>Calendar View</h4>
+                    <p class="text-muted mb-3">Switch between Month, Week, or List view to explore your classes.</p>
+
+                    <div id="map-data" style="display:none;">
+                        <div th:each="map: ${maps}"
+                             class="map-value"
+                             th:data-id="${map.mapId}"
+                             th:data-name="${map.className}"
+                             th:data-date="${map.lectureDate}"
+                             th:data-time="${map.classTime}">
                         </div>
                     </div>
 
-                    <div th:if="${maps == null or maps.size() == 0}">
-                        <p class="mb-0">No classroom maps are available right now.</p>
+                    <div class="card shadow-sm border-0 student-calendar-card">
+                        <div class="card-body">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-section" th:if="${hasEnrolledCourses}">
+                    <h4>Weekly Class Schedule</h4>
+                    <p class="text-muted mb-4">Click on a scheduled class below to view its seating map and mark your attendance.</p>
+
+                    <div class="schedule-container">
+                        <div class="time-labels"></div>
+                        
+                        <div class="days-grid">
+                            <div class="day-col">
+                                <div class="day-header">Mon</div>
+                                <div class="day-body" id="day-0"></div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">Tue</div>
+                                <div class="day-body" id="day-1"></div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">Wed</div>
+                                <div class="day-body" id="day-2"></div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">Thu</div>
+                                <div class="day-body" id="day-3"></div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">Fri</div>
+                                <div class="day-body" id="day-4"></div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">Sat</div>
+                                <div class="day-body" id="day-5"></div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">Sun</div>
+                                <div class="day-body" id="day-6"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <script th:src="@{/js/course.js}"></script>
+    <script th:src="@{/js/calendar.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
+
+            const maps = Array.from(document.querySelectorAll('.map-value')).map(el => ({
+                id: el.dataset.id,
+                name: el.dataset.name || '',
+                date: el.dataset.date || '',
+                time: el.dataset.time || ''
+            }));
+
+            function normalizeTimeText(timeText) {
+                return (timeText || '')
+                    .replace(/[–—]/g, '-')
+                    .replace(/\s+to\s+/gi, '-')
+                    .replace(/\./g, ':')
+                    .trim();
+            }
+
+            function convertTimeToken(token) {
+                if (!token) return null;
+
+                let value = token.trim().toUpperCase().replace(/\s+/g, '');
+
+                if (/^\d{1,2}$/.test(value)) {
+                    value = value + ':00';
+                }
+
+                if (/^\d{1,2}:\d{2}$/.test(value)) {
+                    const [h, m] = value.split(':');
+                    return String(parseInt(h, 10)).padStart(2, '0') + ':' + m;
+                }
+
+                let match = value.match(/^(\d{1,2})(?::(\d{2}))?(AM|PM)$/);
+                if (!match) return null;
+
+                let hour = parseInt(match[1], 10);
+                const minute = match[2] || '00';
+                const meridiem = match[3];
+
+                if (meridiem === 'AM' && hour === 12) hour = 0;
+                if (meridiem === 'PM' && hour !== 12) hour += 12;
+
+                return String(hour).padStart(2, '0') + ':' + minute;
+            }
+
+            function parseTimeRange(timeText, dateText) {
+                if (!timeText || !dateText) {
+                    return {
+                        start: dateText,
+                        end: null,
+                        allDay: true
+                    };
+                }
+
+                const normalized = normalizeTimeText(timeText);
+
+                const matches = normalized.match(/\d{1,2}(?::\d{2})?\s*(?:AM|PM)?/gi);
+
+                if (!matches || matches.length < 2) {
+                    return {
+                        start: dateText,
+                        end: null,
+                        allDay: true
+                    };
+                }
+
+                const start24 = convertTimeToken(matches[0]);
+                const end24 = convertTimeToken(matches[1]);
+
+                if (!start24 || !end24) {
+                    return {
+                        start: dateText,
+                        end: null,
+                        allDay: true
+                    };
+                }
+
+                return {
+                    start: dateText + 'T' + start24 + ':00',
+                    end: dateText + 'T' + end24 + ':00',
+                    allDay: false
+                };
+            }
+
+            const events = maps.map(map => {
+                const parsed = parseTimeRange(map.time, map.date);
+
+                return {
+                    title: map.name,
+                    start: parsed.start,
+                    end: parsed.end,
+                    allDay: parsed.allDay,
+                    url: '/student/passcode/' + map.id,
+                    extendedProps: {
+                        classTime: map.time
+                    }
+                };
+            });
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                initialDate: new Date(),
+                height: 'auto',
+                nowIndicator: true,
+                firstDay: 0,
+                slotMinTime: '08:00:00',
+                slotMaxTime: '20:00:00',
+                allDaySlot: false,
+                slotEventOverlap: false,
+                eventMinHeight: 40,
+                expandRows: true,
+                customButtons: {
+                    myToday: {
+                        text: 'Today',
+                        click: function () {
+                            calendar.today();
+                        }
+                    }
+                },
+                headerToolbar: {
+                    left: 'prev,next myToday',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listWeek'
+                },
+                buttonText: {
+                    month: 'Month',
+                    week: 'Week',
+                    list: 'List'
+                },
+                views: {
+                    timeGridWeek: {
+                        dayHeaderFormat: { weekday: 'short', month: 'numeric', day: 'numeric' }
+                    },
+                    listWeek: {
+                        noEventsText: 'No classes this week'
+                    }
+                },
+                events: events,
+                eventTimeFormat: {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    meridiem: 'short'
+                },
+                displayEventTime: true,
+                eventClick: function(info) {
+                    info.jsEvent.preventDefault();
+                    if (info.event.url) {
+                        window.location.href = info.event.url;
+                    }
+                },
+               eventContent: function(arg) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'student-fc-event-content';
+
+                    const title = document.createElement('div');
+                    title.className = 'student-fc-event-title';
+                    title.textContent = arg.event.title;
+
+                    wrapper.appendChild(title);
+
+                    return { domNodes: [wrapper] };
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
 </body>
 </html>

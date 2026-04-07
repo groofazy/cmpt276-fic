@@ -3,6 +3,7 @@ package com.group14.fic_attendance_tracker.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,23 +12,32 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 import com.group14.fic_attendance_tracker.models.User;
+import com.group14.fic_attendance_tracker.models.UserRepository;
 import com.group14.fic_attendance_tracker.models.ClassMap;
 import com.group14.fic_attendance_tracker.models.ClassMapRepository;
+import com.group14.fic_attendance_tracker.models.Seat;
 import com.group14.fic_attendance_tracker.models.SeatRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Controller
 public class ClassMapsController {
 
     private static final int TOTAL_SEATS = 48;
+
     @Autowired
     private ClassMapRepository mapRepo;
 
     @Autowired
     private SeatRepository seatRepo;
+
+    @Autowired
+    private UserRepository userRepo;
 
     @GetMapping("/maps/create")
     public String showCreateMapForm(Model model, HttpSession session) {
@@ -40,9 +50,12 @@ public class ClassMapsController {
 
     @PostMapping("/maps/create")
     public String saveMap(
-            @RequestParam("className") String className,
+            @RequestParam("subject") String subject,
+            @RequestParam("number") String number,
+            @RequestParam("time") String classTime,
             @RequestParam("lectureDate") LocalDate lectureDate,
             @RequestParam("numRow") int numRow,
+            @RequestParam("passcode") String passcode,
             HttpSession session,
             HttpServletResponse response
     ) {
@@ -52,9 +65,57 @@ public class ClassMapsController {
         }
 
         int creatorId = user.getUid();
-        mapRepo.save(new ClassMap(creatorId, className, lectureDate, numRow));
+        String className = subject + " " + number;
+
+        ClassMap map = new ClassMap(creatorId, className, classTime, lectureDate, numRow);
+        map.setPasscode(passcode);
+
+        mapRepo.save(map);
         response.setStatus(201);
         return "redirect:/users/teacher";
+    }
+
+    @GetMapping("/student/passcode/{id}")
+    public String showStudentPasscode(@PathVariable int id, Model model, HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null || user.getRole() != User.RoleType.STUDENT) {
+            return "users/login";
+        }
+
+        ClassMap classMap = mapRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
+
+        model.addAttribute("classMap", classMap);
+
+        return "users/studentPasscode";
+    }
+
+    @PostMapping("/student/passcode")
+    public String verifyStudentPasscode(
+            @RequestParam("mapId") int mapId,
+            @RequestParam("inputCode") String inputCode,
+            Model model,
+            HttpSession session
+    ) {
+        User user = (User) session.getAttribute("session_user");
+
+        if (user == null || user.getRole() != User.RoleType.STUDENT) {
+            return "users/login";
+        }
+
+        ClassMap classMap = mapRepo.findById(mapId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + mapId));
+
+        if (classMap.getPasscode() != null &&
+                classMap.getPasscode().trim().equals(inputCode.trim())) {
+            session.setAttribute("verified_" + mapId, true);
+            return "redirect:/maps/view/" + mapId;
+        } else {
+            model.addAttribute("classMap", classMap);
+            model.addAttribute("error", "Incorrect Password");
+            return "users/studentPasscode";
+        }
     }
 
     @GetMapping("/maps/view/{id}")
@@ -64,6 +125,13 @@ public class ClassMapsController {
             return "users/login";
         }
 
+        if (user.getRole() == User.RoleType.STUDENT) {
+            Boolean verified = (Boolean) session.getAttribute("verified_" + id);
+            if (verified == null || !verified) {
+                return "redirect:/student/passcode/" + id;
+            }
+        }
+
         ClassMap classMap = mapRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
         ensureSeatsInitialized(classMap);
@@ -71,39 +139,58 @@ public class ClassMapsController {
         String[] seatClasses = buildSeatClasses(seatOwners, user.getUid());
 
         model.addAttribute("classMap", classMap);
-
         model.addAttribute("seatClasses", seatClasses);
         model.addAttribute("currentUserId", user.getUid());
-
         model.addAttribute("sessionUser", user);
-        Boolean verified = (Boolean) session.getAttribute("verified_" + id);
 
+        Boolean verified = (Boolean) session.getAttribute("verified_" + id);
         if (verified == null) {
-           verified = false;
+            verified = false;
         }
 
         model.addAttribute("verified", verified);
+
+        boolean hasSeat = seatRepo.findByMapIdAndStudentId(id, user.getUid()) != null;
+        model.addAttribute("hasSeat", hasSeat);
+
+        if (user.getRole() == User.RoleType.TEACHER) {
+            List<User> allStudents = userRepo.findAll()
+                    .stream()
+                    .filter(u -> u.getRole() == User.RoleType.STUDENT)
+                    .toList();
+
+            List<Seat> seatRecords = seatRepo.findByMapId(id);
+            Set<Integer> presentIds = seatRecords.stream()
+                    .map(Seat::getStudentId)
+                    .filter(sid -> sid != null && sid != 0)
+                    .collect(java.util.stream.Collectors.toSet());
+
+            List<User> presentStudents = allStudents.stream()
+                    .filter(s -> presentIds.contains(s.getUid()))
+                    .toList();
+
+            model.addAttribute("presentStudents", presentStudents);
+        }
+
         return "maps/mapView";
     }
 
-    //implementing generate passcode feature
     @GetMapping("/attendance/display/{id}")
     public String showAttendanceScreen(@PathVariable int id, Model model, HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
 
-    User user = (User) session.getAttribute("session_user");
+        if (user == null || user.getRole() != User.RoleType.TEACHER) {
+            return "users/login";
+        }
 
-    if (user == null || user.getRole() != User.RoleType.TEACHER) {
-        return "users/login";
+        ClassMap classMap = mapRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
+
+        model.addAttribute("classMap", classMap);
+        model.addAttribute("sessionUser", user);
+
+        return "users/passcodeDisplay";
     }
-
-    ClassMap classMap = mapRepo.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
-
-    model.addAttribute("classMap", classMap);
-    model.addAttribute("sessionUser", user);
-
-    return "users/passcodeDisplay"; 
-}
 
     @PostMapping("/maps/selectSeat")
     public String selectSeat(
@@ -131,19 +218,16 @@ public class ClassMapsController {
 
         String targetSeatOwner = seatOwners[seatIndex];
 
-        // Someone else already owns this seat
         if (!"0".equals(targetSeatOwner) && !currentUserId.equals(targetSeatOwner)) {
             return buildMapView(model, classMap, user.getUid(), "That seat is already taken.", null);
         }
 
-        // Remove this user's old seat first so they only ever have one seat per class
         for (int i = 0; i < seatOwners.length; i++) {
             if (currentUserId.equals(seatOwners[i])) {
                 seatOwners[i] = "0";
             }
         }
 
-        // Assign the new seat to this user
         seatOwners[seatIndex] = currentUserId;
 
         classMap.setSeats(String.join(",", seatOwners));
@@ -184,7 +268,6 @@ public class ClassMapsController {
             }
         }
 
-        // Fill any missing entries safely
         for (int i = seatOwners.length; i < TOTAL_SEATS; i++) {
             seatClasses[i] = "available";
         }
@@ -209,21 +292,20 @@ public class ClassMapsController {
     @Transactional
     @PostMapping("/maps/delete/{id}")
     public String deleteMap(@PathVariable int id, HttpSession session) {
+        User user = (User) session.getAttribute("session_user");
 
-      User user = (User) session.getAttribute("session_user");
+        if (user == null) {
+            return "redirect:/login";
+        }
 
-      if (user == null) {
-          return "redirect:/login";
-      }
+        ClassMap map = mapRepo.findById(id).orElse(null);
 
-      ClassMap map = mapRepo.findById(id).orElse(null);
+        if (map != null && map.getCreatorId() == user.getUid()) {
+            seatRepo.deleteByMapId(id);
+            mapRepo.delete(map);
+        }
 
-      if (map != null && map.getCreatorId() == user.getUid()) {
-        seatRepo.deleteByMapId(id);
-        mapRepo.delete(map);
-      }
-
-      return "redirect:/users/teacher";
+        return "redirect:/users/teacher";
     }
 
     @PostMapping("/attendance/start/{id}")
@@ -231,16 +313,14 @@ public class ClassMapsController {
         User user = (User) session.getAttribute("session_user");
         if (user == null || user.getRole() != User.RoleType.TEACHER) {
             return "users/login";
-
         }
 
         ClassMap classMap = mapRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
 
-        String code = String.valueOf((int)(Math.random() * 900000) + 100000); // Generate a random 6-digit code
-        classMap.setPasscode(code);
         classMap.setAttendanceOpen(true);
         mapRepo.save(classMap);
+
         return "redirect:/attendance/display/" + id;
     }
 
@@ -255,22 +335,58 @@ public class ClassMapsController {
         if (user == null || user.getRole() != User.RoleType.STUDENT) {
             return "users/login";
         }
+
         ClassMap classMap = mapRepo.findById(mapId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + mapId));
-        
-        if (classMap.getAttendanceOpen() != null && 
-            classMap.getAttendanceOpen() && classMap.getPasscode() != null &&
-            classMap.getPasscode().equals(inputCode)) {
-            
-            session.setAttribute("verified_" + mapId, true); // Mark this student as verified for this class map
-            model.addAttribute("verified", true); // Mark the student as verified to show the seating chart
+
+        if (classMap.getAttendanceOpen() != null &&
+                classMap.getAttendanceOpen() &&
+                classMap.getPasscode() != null &&
+                classMap.getPasscode().equals(inputCode)) {
+
+            session.setAttribute("verified_" + mapId, true);
+            model.addAttribute("verified", true);
             model.addAttribute("success", "Please select your seat to mark attendance.");
 
-            } else {
-                session.setAttribute("verified_" + mapId, false); // Ensure student is marked as not verified
-                model.addAttribute("verified", false);
-                model.addAttribute("error", "Invalid passcode. Please try again.");
+        } else {
+            session.setAttribute("verified_" + mapId, false);
+            model.addAttribute("verified", false);
+            model.addAttribute("error", "Invalid passcode. Please try again.");
+        }
+        return viewMap(mapId, model, session);
+    }
+
+    @GetMapping("/maps/export/{id}")
+    public void exportAttendance(@PathVariable int id, HttpServletResponse response) throws IOException {
+        ClassMap classMap = mapRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid map Id:" + id));
+
+        var seats = seatRepo.findByMapId(id);
+
+        String fileName = classMap.getClassName() + "_" + classMap.getLectureDate() + ".csv";
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+        PrintWriter writer = response.getWriter();
+
+        writer.println("Course," + classMap.getClassName());
+        writer.println("Date," + classMap.getLectureDate());
+        writer.println("");
+
+        writer.println("Name,Status");
+
+        for (var seat : seats) {
+            Integer studentId = seat.getStudentId();
+
+            if (studentId != null && studentId != 0) {
+                userRepo.findById(studentId).ifPresent(user -> {
+                    writer.println(user.getName() + ",Present");
+                });
             }
-            return viewMap(mapId, model, session);
+        }
+
+        writer.flush();
+        writer.close();
     }
 }

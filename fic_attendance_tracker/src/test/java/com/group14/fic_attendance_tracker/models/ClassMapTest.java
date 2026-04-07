@@ -11,10 +11,11 @@ public class ClassMapTest {
     void testClassMapConstructor() {
         int creatorId = 1;
         String className = "CMPT 276";
+        String classTime = "Tuesday 14:30 - 16:20";
         LocalDate lectureDate = LocalDate.of(2026, 3, 31);
         int numRow = 5;
 
-        ClassMap classMap = new ClassMap(creatorId, className, lectureDate, numRow);
+        ClassMap classMap = new ClassMap(creatorId, className, classTime, lectureDate, numRow);
 
         assertEquals(creatorId, classMap.getCreatorId());
         assertEquals(className, classMap.getClassName());
